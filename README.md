@@ -144,10 +144,12 @@ Waroenk is a full-stack marketplace application featuring:
 │  │              │  │              │  │              │  │              │        │
 │  │ • Users      │  │ • Products   │  │ • Sessions   │  │ • Product    │        │
 │  │ • Addresses  │  │ • Variants   │  │ • Cache      │  │   search     │        │
-│  │ • Orders     │  │ • Merchants  │  │ • Rate limit │  │ • Merchant   │        │
-│  │ • Carts      │  │ • Categories │  │ • Cart temp  │  │   search     │        │
+│  │              │  │ • Merchants  │  │ • Rate limit │  │ • Merchant   │        │
+│  │              │  │ • Categories │  │              │  │   search     │        │
 │  │              │  │ • Brands     │  │              │  │ • Faceted    │        │
 │  │              │  │ • Inventory  │  │              │  │   filtering  │        │
+│  │              │  │ • Carts      │  │              │  │              │        │
+│  │              │  │ • Checkouts  │  │              │  │              │        │
 │  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘        │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
@@ -289,8 +291,8 @@ backend/waroenk-parent/catalog/src/main/resources/seed-data/
 ### Infrastructure
 | Service | Port | Purpose |
 |---------|------|---------|
-| PostgreSQL 15 | 5432 | Relational data (users, addresses, orders) |
-| MongoDB 7 | 27017 | Document data (products, catalog) |
+| PostgreSQL 15 | 5432 | Member data (users, addresses) |
+| MongoDB 7 | 27017 | Catalog + Cart data (products, carts, checkouts) |
 | Redis 7 | 6379 | Caching, session storage, rate limiting |
 | Typesense 0.25 | 8108 | Full-text search engine |
 
