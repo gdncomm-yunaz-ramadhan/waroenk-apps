@@ -1,0 +1,36 @@
+# ================================
+# Cart Module Dockerfile (FAST - uses pre-built JAR)
+# Usage: 
+#   1. Build locally: ./mvnw -DskipTests package -pl grpc-contract,cart
+#   2. Build image: docker build -f Dockerfile.dev -t cart-app .
+# ================================
+
+FROM eclipse-temurin:21-jre-alpine
+
+WORKDIR /app
+
+# Add curl for healthchecks
+RUN apk add --no-cache curl
+
+# Copy pre-built JAR (must build locally first)
+COPY target/cart.jar app.jar
+
+EXPOSE 8082 9092
+
+# Optimized JVM settings
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-XX:+UseG1GC", \
+    "-XX:+UseStringDeduplication", \
+    "-jar", "app.jar"]
+
+
+
+
+
+
+
+
+
+

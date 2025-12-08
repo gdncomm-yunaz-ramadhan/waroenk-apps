@@ -1,0 +1,21 @@
+{
+  "name": "waroenk-frontend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Lightweight e-commerce frontend for Waroenk marketplace",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@tailwindcss/vite": "^4.1.17",
+    "autoprefixer": "^10.4.22",
+    "postcss": "^8.5.6",
+    "svelte": "^5.43.8",
+    "tailwindcss": "^4.1.17",
+    "vite": "^7.2.4"
+  }
+}

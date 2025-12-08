@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package catalog.product;
+
+import "common/base.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "ProductMessagesProto";
+
+message ProductSummary {
+    string short_description = 1;
+    repeated string tags = 2;
+}
+
+message ProductData {
+    string id = 1;
+    string title = 2;
+    string sku = 3;
+    string merchant_code = 4;
+    string category_id = 5;
+    string brand_id = 6;
+    ProductSummary summary = 7;
+    optional string detail_ref = 8;
+    google.protobuf.Timestamp created_at = 9;
+    google.protobuf.Timestamp updated_at = 10;
+}
+
+message CreateProductRequest {
+    string title = 1;
+    string sku = 2;
+    string merchant_code = 3;
+    string category_id = 4;
+    string brand_id = 5;
+    ProductSummary summary = 6;
+    optional string detail_ref = 7;
+}
+
+message UpdateProductRequest {
+    string id = 1;
+    optional string title = 2;
+    optional string sku = 3;
+    optional string merchant_code = 4;
+    optional string category_id = 5;
+    optional string brand_id = 6;
+    optional ProductSummary summary = 7;
+    optional string detail_ref = 8;
+}
+
+message FindProductBySkuRequest {
+    string sku = 1;
+}
+
+message FilterProductRequest {
+    optional string title = 1;
+    optional string sku = 2;
+    optional string merchant_code = 3;
+    optional string category_id = 4;
+    optional string brand_id = 5;
+    int32 size = 6;
+    optional string cursor = 7;
+    optional common.SortBy sort_by = 8;
+}
+
+message MultipleProductResponse {
+    repeated ProductData data = 1;
+    string next_token = 2;
+    int32 total = 3;
+}

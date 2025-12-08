@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package member.address;
+
+import "common/base.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.member";
+option java_outer_classname = "AddressMessagesProto";
+
+message AddressData {
+    string id = 1;
+    string label = 2;
+    string country = 3;
+    string province = 4;
+    string city = 5;
+    string district = 6;
+    string sub_district = 7;
+    string postal_code = 8;
+    string street = 9;
+    float latitude = 10;
+    float longitude = 11;
+    string details = 12;
+    google.protobuf.Timestamp created_at = 13;
+    google.protobuf.Timestamp updated_at = 14;
+    bool is_default = 15;
+}
+
+message UpsertAddressRequest {
+    string user_id = 1;
+    string label = 2;
+    string country = 3;
+    string province = 4;
+    string city = 5;
+    string district = 6;
+    string sub_district = 7;
+    string postal_code = 8;
+    string street = 9;
+    float latitude = 10;
+    float longitude = 11;
+    string details = 12;
+    bool is_default = 13;
+}
+
+message FindUserAddressRequest {
+    string user_id = 1;
+    string label = 2;
+}
+
+message SetDefaultAddressRequest {
+    string user_id = 1;
+    string address_id = 2;
+}
+
+message FilterAddressRequest {
+    string user = 1;
+    optional string label = 2;
+    int32 size = 3;
+    optional string cursor = 4;
+    optional common.SortBy sort_by = 5;
+}
+
+message MultipleAddressResponse {
+    repeated AddressData data = 1;
+    string next_token = 2;
+    int32 total = 3;
+}

@@ -1,0 +1,65 @@
+# ================================
+# Catalog Module docker-compose.yml
+# Builds and runs catalog service with MongoDB, Redis, and Typesense
+# ================================
+
+services:
+  catalog:
+    image: waroenk-parent-catalog:latest
+    container_name: catalog
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    env_file:
+      - .env
+    networks:
+      - shared
+      - mongodb-net
+      - redis-net
+      - typesense-net
+      - backend
+    # Expose to host for development
+    ports:
+      - "8082:8082"   # Catalog HTTP
+      - "9091:9091"   # Catalog gRPC
+    environment:
+      HTTP_REST_PORT: 8082
+      JAVA_OPTS: ${JAVA_OPTS:--Xms256m -Xmx512m}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
+      # MongoDB config
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongodb:27017/catalog}
+      # Redis config (Standalone mode by default)
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # To enable Sentinel mode, set these env vars:
+      # REDIS_SENTINEL_MASTER: mymaster
+      # REDIS_SENTINEL_NODES: sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
+      # Typesense config
+      TYPESENSE_HOST: ${TYPESENSE_HOST:-typesense}
+      TYPESENSE_PORT: ${TYPESENSE_PORT:-8108}
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-xyz123}
+      # API Gateway registration
+      GATEWAY_REGISTRATION_ENABLED: ${GATEWAY_REGISTRATION_ENABLED:-true}
+      GATEWAY_HOST: ${GATEWAY_HOST:-api-gateway}
+      GATEWAY_GRPC_PORT: ${GATEWAY_GRPC_PORT:-6565}
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
+  shared:
+    name: shared-network
+    external: true
+  mongodb-net:
+    name: mongodb
+    external: true
+  redis-net:
+    name: redis-net
+    external: true
+  typesense-net:
+    name: typesense-net
+    external: true

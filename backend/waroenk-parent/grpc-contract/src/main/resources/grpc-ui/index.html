@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>gRPC UI - {{APP_NAME}}</title>
+    <style>
+        :root {
+            --bg-dark: #0d1117;
+            --bg-card: #161b22;
+            --bg-input: #21262d;
+            --border: #30363d;
+            --text: #c9d1d9;
+            --text-muted: #8b949e;
+            --accent: #58a6ff;
+            --success: #3fb950;
+            --error: #f85149;
+            --warning: #d29922;
+            --purple: #a371f7;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 24px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo svg { width: 32px; height: 32px; }
+        
+        h1 { font-size: 20px; font-weight: 600; }
+        
+        .badge {
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge.version {
+            background: var(--bg-input);
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+        }
+        
+        .header-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+        }
+        
+        .sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+            height: fit-content;
+            max-height: calc(100vh - 140px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+        
+        .search-box {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        
+        .search-input {
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: var(--text);
+            font-size: 13px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .service-list {
+            overflow-y: auto;
+            flex: 1;
+        }
+        
+        .service { border-bottom: 1px solid var(--border); }
+        .service:last-child { border-bottom: none; }
+        .service.hidden { display: none; }
+        
+        .service-name {
+            padding: 12px 16px;
+            background: var(--bg-input);
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--accent);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+        }
+        
+        .service-name:hover {
+            background: var(--bg-card);
+        }
+        
+        .service-name .chevron {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s;
+        }
+        
+        .service.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+        
+        .service.collapsed .methods {
+            display: none;
+        }
+        
+        .methods {
+            overflow: hidden;
+        }
+        
+        .method {
+            padding: 10px 16px 10px 24px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .method.hidden { display: none; }
+        .method:hover { background: var(--bg-input); }
+        .method.active { background: var(--accent); color: var(--bg-dark); }
+        
+        .method-icon {
+            width: 6px;
+            height: 6px;
+            background: var(--success);
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .method-count {
+            font-size: 11px;
+            color: var(--text-muted);
+            background: var(--bg-dark);
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        .no-results {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+        
+        .main {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+        
+        .card-header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .card-title { font-weight: 600; font-size: 14px; }
+        
+        .card-body { padding: 16px; }
+        
+        .method-info {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        
+        .info-item { font-size: 13px; }
+        .info-label { color: var(--text-muted); margin-right: 8px; }
+        
+        .code-area { position: relative; }
+        
+        textarea, .response-area {
+            width: 100%;
+            height: 200px;
+            max-height: 300px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            color: var(--text);
+            font-family: 'SF Mono', Consolas, 'Monaco', monospace;
+            font-size: 13px;
+            resize: vertical;
+            overflow: auto;
+        }
+        
+        textarea:focus { outline: none; border-color: var(--accent); }
+        
+        .response-area {
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        
+        .response-area.success { border-left: 3px solid var(--success); }
+        .response-area.error { border-left: 3px solid var(--error); }
+        .response-area.schema { border-left: 3px solid var(--purple); opacity: 0.8; }
+        
+        .icon-btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        
+        .icon-btn:hover { color: var(--text); border-color: var(--text-muted); }
+        .icon-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .icon-btn svg { width: 18px; height: 18px; }
+        
+        .icon-btn.primary {
+            background: var(--success);
+            border-color: var(--success);
+            color: var(--bg-dark);
+        }
+        .icon-btn.primary:hover { opacity: 0.9; }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status.success { background: rgba(63, 185, 80, 0.2); color: var(--success); }
+        .status.error { background: rgba(248, 81, 73, 0.2); color: var(--error); }
+        
+        .duration { color: var(--text-muted); font-size: 12px; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        
+        .grpcurl-section {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 12px;
+        }
+        
+        .grpcurl-cmd {
+            font-family: 'SF Mono', Consolas, monospace;
+            font-size: 12px;
+            color: var(--warning);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        
+        .copy-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--success);
+            color: var(--bg-dark);
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 1000;
+        }
+        
+        .copy-toast.show { opacity: 1; }
+        
+        .tooltip { position: relative; }
+        
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 8px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.15s;
+            margin-bottom: 4px;
+            z-index: 100;
+        }
+        
+        .tooltip:hover::after { opacity: 1; }
+        
+        .highlight {
+            background: var(--warning);
+            color: var(--bg-dark);
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: 1fr; }
+            .sidebar { max-height: 300px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+                <h1>gRPC UI</h1>
+                <span class="badge" id="app-name">{{APP_NAME}}</span>
+                <span class="badge version" id="app-version">v1.0.0</span>
+            </div>
+            <div class="header-info">
+                <span class="duration" id="connection-status">Connecting...</span>
+            </div>
+        </header>
+        
+        <div class="grid">
+            <aside class="sidebar">
+                <div class="sidebar-header">Services & Methods</div>
+                <div class="search-box">
+                    <input type="text" class="search-input" id="search-input" placeholder="Search services or methods...">
+                </div>
+                <div class="service-list" id="service-list">
+                    <div class="empty-state">Loading...</div>
+                </div>
+            </aside>
+            
+            <main class="main">
+                <!-- Request Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <span class="card-title" id="selected-method">Select a method</span>
+                        </div>
+                        <div style="display:flex;gap:8px;">
+                            <button class="icon-btn tooltip" id="copy-request-btn" data-tooltip="Copy Request" style="display:none;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="method-info" id="method-info" style="display:none">
+                            <div class="info-item">
+                                <span class="info-label">Input:</span>
+                                <span id="input-type">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Output:</span>
+                                <span id="output-type">-</span>
+                            </div>
+                        </div>
+                        <div class="code-area">
+                            <textarea id="request-body" placeholder="Select a method from the sidebar to get started..."></textarea>
+                        </div>
+                        <div class="actions">
+                            <button class="icon-btn primary tooltip" id="invoke-btn" data-tooltip="Invoke (Ctrl+Enter)" disabled>
+                                <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                    <polygon points="5 3 19 12 5 21 5 3"/>
+                                </svg>
+                            </button>
+                            <button class="icon-btn tooltip" id="prettify-btn" data-tooltip="Prettify JSON">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="4 7 4 4 20 4 20 7"/>
+                                    <line x1="9" y1="20" x2="15" y2="20"/>
+                                    <line x1="12" y1="4" x2="12" y2="20"/>
+                                </svg>
+                            </button>
+                            <button class="icon-btn tooltip" id="reset-btn" data-tooltip="Reset to Example">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="1 4 1 10 7 10"/>
+                                    <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- gRPCurl Command Section -->
+                <div class="card" id="grpcurl-card" style="display:none;">
+                    <div class="card-header">
+                        <span class="card-title">grpcurl Command</span>
+                        <button class="icon-btn tooltip" id="copy-grpcurl-btn" data-tooltip="Copy Command">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="grpcurl-cmd" id="grpcurl-cmd"></div>
+                    </div>
+                </div>
+                
+                <!-- Response Section -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-header-left">
+                            <span class="card-title">Response</span>
+                            <span class="status" id="response-status" style="display:none"></span>
+                            <span class="duration" id="response-duration"></span>
+                        </div>
+                        <button class="icon-btn tooltip" id="copy-response-btn" data-tooltip="Copy Response">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="response-area" id="response-body">Select a method to see expected response format...</div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <div class="copy-toast" id="copy-toast">Copied to clipboard!</div>
+    
+    <script>
+        let services = [];
+        let selectedMethod = null;
+        let methodsData = {};
+        let grpcPort = 9090;
+        let searchTerm = '';
+        
+        async function loadServices() {
+            try {
+                const res = await fetch('/grpc-ui/services');
+                const data = await res.json();
+                services = data.services;
+                grpcPort = data.grpcPort;
+                
+                // Update header
+                document.getElementById('app-name').textContent = data.appName;
+                document.getElementById('app-version').textContent = 'v' + data.appVersion;
+                document.getElementById('connection-status').textContent = `Port: ${data.grpcPort}`;
+                
+                renderServices();
+            } catch (e) {
+                document.getElementById('service-list').innerHTML = 
+                    '<div class="empty-state">Failed to load services</div>';
+            }
+        }
+        
+        function renderServices() {
+            const container = document.getElementById('service-list');
+            if (!services.length) {
+                container.innerHTML = '<div class="empty-state">No services found</div>';
+                return;
+            }
+            
+            container.innerHTML = services.map((service, idx) => {
+                service.methods.forEach(method => {
+                    methodsData[method.fullName] = method;
+                });
+                
+                const serviceName = service.name.split('.').pop();
+                const methodCount = service.methods.length;
+                
+                return `
+                    <div class="service" data-service="${service.name}">
+                        <div class="service-name" data-toggle="${idx}">
+                            <span>${serviceName}</span>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span class="method-count">${methodCount}</span>
+                                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="methods">
+                            ${service.methods.map(method => `
+                                <div class="method" data-method="${method.fullName}" data-name="${method.name.toLowerCase()}">
+                                    <span class="method-icon"></span>
+                                    <span class="method-text">${method.name}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            // Add accordion toggle handlers
+            container.querySelectorAll('.service-name').forEach(el => {
+                el.addEventListener('click', (e) => {
+                    const service = el.closest('.service');
+                    service.classList.toggle('collapsed');
+                });
+            });
+            
+            // Add method click handlers
+            container.querySelectorAll('.method').forEach(el => {
+                el.addEventListener('click', () => selectMethod(el.dataset.method));
+            });
+        }
+        
+        function filterServices(term) {
+            searchTerm = term.toLowerCase();
+            const serviceElements = document.querySelectorAll('.service');
+            let hasResults = false;
+            
+            serviceElements.forEach(serviceEl => {
+                const serviceName = serviceEl.dataset.service.toLowerCase();
+                const methods = serviceEl.querySelectorAll('.method');
+                let serviceMatch = serviceName.includes(searchTerm);
+                let visibleMethods = 0;
+                
+                methods.forEach(methodEl => {
+                    const methodName = methodEl.dataset.name;
+                    const methodMatch = methodName.includes(searchTerm);
+                    
+                    if (searchTerm === '' || serviceMatch || methodMatch) {
+                        methodEl.classList.remove('hidden');
+                        visibleMethods++;
+                        
+                        // Highlight matching text
+                        const textSpan = methodEl.querySelector('.method-text');
+                        if (searchTerm && methodMatch) {
+                            const originalName = methodsData[methodEl.dataset.method].name;
+                            const regex = new RegExp(`(${escapeRegex(searchTerm)})`, 'gi');
+                            textSpan.innerHTML = originalName.replace(regex, '<span class="highlight">$1</span>');
+                        } else {
+                            textSpan.textContent = methodsData[methodEl.dataset.method].name;
+                        }
+                    } else {
+                        methodEl.classList.add('hidden');
+                    }
+                });
+                
+                // Show/hide service based on matches
+                if (searchTerm === '' || serviceMatch || visibleMethods > 0) {
+                    serviceEl.classList.remove('hidden');
+                    hasResults = true;
+                    
+                    // Auto-expand if searching
+                    if (searchTerm) {
+                        serviceEl.classList.remove('collapsed');
+                    }
+                } else {
+                    serviceEl.classList.add('hidden');
+                }
+            });
+            
+            // Show no results message
+            let noResultsEl = document.querySelector('.no-results');
+            if (!hasResults) {
+                if (!noResultsEl) {
+                    noResultsEl = document.createElement('div');
+                    noResultsEl.className = 'no-results';
+                    document.getElementById('service-list').appendChild(noResultsEl);
+                }
+                noResultsEl.textContent = `No results for "${term}"`;
+                noResultsEl.style.display = 'block';
+            } else if (noResultsEl) {
+                noResultsEl.style.display = 'none';
+            }
+        }
+        
+        function escapeRegex(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+        
+        function selectMethod(methodName) {
+            selectedMethod = methodName;
+            const method = methodsData[methodName];
+            
+            // Update sidebar
+            document.querySelectorAll('.method').forEach(el => el.classList.remove('active'));
+            const methodEl = document.querySelector(`[data-method="${methodName}"]`);
+            if (methodEl) {
+                methodEl.classList.add('active');
+                // Ensure parent service is expanded
+                methodEl.closest('.service').classList.remove('collapsed');
+            }
+            
+            // Update header and info
+            document.getElementById('selected-method').textContent = methodName;
+            document.getElementById('method-info').style.display = 'flex';
+            document.getElementById('input-type').textContent = method.inputType;
+            document.getElementById('output-type').textContent = method.outputType;
+            
+            // Set request example
+            document.getElementById('request-body').value = method.requestExample || '{}';
+            document.getElementById('invoke-btn').disabled = false;
+            document.getElementById('copy-request-btn').style.display = 'flex';
+            
+            // Reset response to show expected format
+            resetResponse();
+            
+            // Hide grpcurl section
+            document.getElementById('grpcurl-card').style.display = 'none';
+        }
+        
+        function resetResponse() {
+            if (!selectedMethod) return;
+            const method = methodsData[selectedMethod];
+            const responseBody = document.getElementById('response-body');
+            const responseStatus = document.getElementById('response-status');
+            const responseDuration = document.getElementById('response-duration');
+            
+            responseBody.className = 'response-area schema';
+            responseBody.textContent = '// Expected Response Format:\n' + (method.responseExample || '{}');
+            responseStatus.style.display = 'none';
+            responseDuration.textContent = '';
+        }
+        
+        function generateGrpcurlCommand() {
+            if (!selectedMethod) return '';
+            const method = methodsData[selectedMethod];
+            const requestBody = document.getElementById('request-body').value.trim();
+            const [serviceName, methodName] = selectedMethod.split('/');
+            
+            // Escape the JSON for shell
+            const escapedJson = requestBody.replace(/'/g, "'\\''");
+            
+            return `grpcurl -plaintext -d '${escapedJson}' localhost:${grpcPort} ${serviceName}/${methodName}`;
+        }
+        
+        async function invoke() {
+            if (!selectedMethod) return;
+            
+            const btn = document.getElementById('invoke-btn');
+            const responseBody = document.getElementById('response-body');
+            const responseStatus = document.getElementById('response-status');
+            const responseDuration = document.getElementById('response-duration');
+            const grpcurlCard = document.getElementById('grpcurl-card');
+            const grpcurlCmd = document.getElementById('grpcurl-cmd');
+            
+            btn.disabled = true;
+            responseBody.className = 'response-area';
+            responseBody.textContent = 'Loading...';
+            
+            // Show grpcurl command
+            grpcurlCmd.textContent = generateGrpcurlCommand();
+            grpcurlCard.style.display = 'block';
+            
+            try {
+                const res = await fetch(`/grpc-ui/invoke?method=${encodeURIComponent(selectedMethod)}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: document.getElementById('request-body').value
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    responseBody.className = 'response-area success';
+                    responseBody.textContent = JSON.stringify(JSON.parse(data.response), null, 2);
+                    responseStatus.className = 'status success';
+                    responseStatus.textContent = '✓ Success';
+                } else {
+                    responseBody.className = 'response-area error';
+                    responseBody.textContent = data.error;
+                    responseStatus.className = 'status error';
+                    responseStatus.textContent = '✗ Error';
+                }
+                
+                responseStatus.style.display = 'inline-flex';
+                responseDuration.textContent = data.duration;
+                
+            } catch (e) {
+                responseBody.className = 'response-area error';
+                responseBody.textContent = e.message;
+                responseStatus.className = 'status error';
+                responseStatus.textContent = '✗ Error';
+                responseStatus.style.display = 'inline-flex';
+            }
+            
+            btn.disabled = false;
+        }
+        
+        function prettifyJson() {
+            try {
+                const textarea = document.getElementById('request-body');
+                textarea.value = JSON.stringify(JSON.parse(textarea.value), null, 2);
+            } catch (e) {
+                showToast('Invalid JSON');
+            }
+        }
+        
+        function resetToExample() {
+            if (selectedMethod && methodsData[selectedMethod]) {
+                document.getElementById('request-body').value = 
+                    methodsData[selectedMethod].requestExample || '{}';
+                resetResponse();
+                document.getElementById('grpcurl-card').style.display = 'none';
+            }
+        }
+        
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!');
+            }).catch(() => {
+                showToast('Failed to copy');
+            });
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('copy-toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        // Event listeners
+        document.getElementById('invoke-btn').addEventListener('click', invoke);
+        document.getElementById('prettify-btn').addEventListener('click', prettifyJson);
+        document.getElementById('reset-btn').addEventListener('click', resetToExample);
+        
+        document.getElementById('copy-request-btn').addEventListener('click', () => {
+            copyToClipboard(document.getElementById('request-body').value);
+        });
+        
+        document.getElementById('copy-response-btn').addEventListener('click', () => {
+            copyToClipboard(document.getElementById('response-body').textContent);
+        });
+        
+        document.getElementById('copy-grpcurl-btn').addEventListener('click', () => {
+            copyToClipboard(document.getElementById('grpcurl-cmd').textContent);
+        });
+        
+        // Search handler with debounce
+        let searchTimeout;
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterServices(e.target.value);
+            }, 150);
+        });
+        
+        // Clear search on Escape
+        document.getElementById('search-input').addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                e.target.value = '';
+                filterServices('');
+            }
+        });
+        
+        // Keyboard shortcut: Ctrl+Enter to invoke
+        document.getElementById('request-body').addEventListener('keydown', e => {
+            if (e.ctrlKey && e.key === 'Enter') invoke();
+        });
+        
+        loadServices();
+    </script>
+</body>
+</html>

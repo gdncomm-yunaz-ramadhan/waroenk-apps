@@ -1,0 +1,42 @@
+# Ignore env files
+**/.env
+**/*.env
+
+# Ignore target directories (we'll build fresh)
+**/target/
+
+# Ignore IDE files
+**/.idea/
+**/*.iml
+**/.vscode/
+
+# Ignore git
+.git/
+.gitignore
+
+# Ignore Docker files in subdirectories
+**/docker-compose*.yml
+**/Dockerfile
+
+# Ignore logs and temp files
+**/*.log
+**/logs/
+
+# Ignore node_modules if any
+**/node_modules/
+
+# Keep these (not ignored)
+!pom.xml
+!**/pom.xml
+!**/src/
+!mvnw
+!.mvn/
+
+
+
+
+
+
+
+
+

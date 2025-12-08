@@ -1,0 +1,56 @@
+version: "3.8"
+
+# ================================
+# Typesense Docker Compose
+# Search engine accessible on localhost:8108
+# ================================
+
+services:
+  typesense:
+    image: typesense/typesense:29.0
+    container_name: typesense
+    restart: always
+    ports:
+      - "${TYPESENSE_PORT:-8108}:8108"
+    networks:
+      - typesense-net
+    volumes:
+      - typesense_data:/data
+    environment:
+      TYPESENSE_API_KEY: ${TYPESENSE_API_KEY:-xyz123}
+      TYPESENSE_LOG_LEVEL: warn
+      TYPESENSE_OPTIMIZE_MEMORY_FOR_HIGHEST_CARDINALITY_FIELDS: "true"
+      TYPESENSE_CACHE_SIZE: 64mb
+      TYPESENSE_MAX_ALLOWABLE_MEMORY_USAGE: 1000mb
+      TYPESENSE_WRITE_BUFFER_SIZE: 32mb
+      TYPESENSE_ENABLE_CLUSTERING: "false"
+    # Optimized for low resource environments:
+    command: >
+      --data-dir /data
+      --api-key=${TYPESENSE_API_KEY:-xyz123}
+      --enable-cors=false
+      --enable-embedding
+      --num-threads=2
+      --search-cache-size=128mb
+
+    # Optional: enforce memory limits (only works if using Docker Swarm)
+    deploy:
+      resources:
+        limits:
+          memory: 2g
+        reservations:
+          memory: 512m
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8108/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  typesense_data:
+
+networks:
+  typesense-net:
+    name: typesense-net
+    driver: bridge

@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package member.user;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "member/user/user_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.member";
+option java_outer_classname = "UserServiceProto";
+
+service UserService {
+    rpc Register(CreateUserRequest) returns (CreateUserResponse){
+        option (google.api.http) = {
+            post: "/api/user/register"
+        };
+    }
+    rpc GetOneUserById(common.Id) returns (UserData){
+        option (google.api.http) = {
+            get: "/api/user"
+        };
+    }
+    rpc GetOneUserByPhoneOrEmail(PhoneOrEmailRequest) returns (UserData){
+        option (google.api.http) = {
+            get: "/api/user/find-one"
+        };
+    }
+    rpc FilterUser(FilterUserRequest) returns (MultipleUserResponse){
+        option (google.api.http) = {
+            get: "/api/user/filter"
+        };
+    }
+    rpc Authenticate(AuthenticateRequest) returns (UserTokenResponse){
+        option (google.api.http) = {
+            post: "/api/user/login"
+        };
+    }
+    rpc UpdateUser(UpdateUserRequest) returns (UserData){
+        option (google.api.http) = {
+            put: "/api/user"
+        };
+    }
+
+    // Logout - Invalidate user session and tokens
+    rpc Logout(LogoutRequest) returns (LogoutResponse){
+        option (google.api.http) = {
+            post: "/api/user/logout"
+        };
+    }
+
+    // Forgot Password - Request password reset token
+    rpc ForgotPassword(ForgotPasswordRequest) returns (ForgotPasswordResponse){
+        option (google.api.http) = {
+            post: "/api/user/forgot-password"
+        };
+    }
+
+    // Change Password - Reset password using token
+    rpc ChangePassword(ChangePasswordRequest) returns (ChangePasswordResponse){
+        option (google.api.http) = {
+            post: "/api/user/change-password"
+        };
+    }
+
+    // Refresh Token - Get new access token using refresh token
+    rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse){
+        option (google.api.http) = {
+            post: "/api/user/refresh-token"
+        };
+    }
+}

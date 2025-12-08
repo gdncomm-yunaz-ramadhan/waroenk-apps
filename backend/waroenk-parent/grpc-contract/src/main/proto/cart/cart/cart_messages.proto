@@ -1,0 +1,126 @@
+syntax = "proto3";
+
+package cart.cart;
+
+import "common/base.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.cart";
+option java_outer_classname = "CartMessagesProto";
+
+// Cart item within a cart
+message CartItemData {
+    string sku = 1;
+    string sub_sku = 2;              // Variant sub-SKU for inventory lookup
+    string title = 3;                // Product/variant title snapshot
+    int64 price_snapshot = 4;        // Price at time of adding to cart
+    int32 quantity = 5;              // Quantity requested by user
+    int32 available_stock_snapshot = 6;  // Stock available at time of last check
+    string image_url = 7;
+    map<string, string> attributes = 8;  // Variant attributes snapshot
+}
+
+// Complete cart data
+message CartData {
+    string id = 1;
+    string user_id = 2;
+    repeated CartItemData items = 3;
+    string currency = 4;
+    int64 total_amount = 5;
+    int32 total_items = 6;
+    int32 version = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+}
+
+// Request to add a single item to cart
+message AddCartItemRequest {
+    string user_id = 1;
+    string sku = 2;
+    string sub_sku = 3;              // Variant sub-SKU (required for stock validation)
+    int32 quantity = 4;
+}
+
+// Request to add multiple items to cart
+message BulkAddCartItemsRequest {
+    string user_id = 1;
+    repeated CartItemInput items = 2;
+}
+
+message CartItemInput {
+    string sku = 1;
+    string sub_sku = 2;              // Variant sub-SKU (required for stock validation)
+    int32 quantity = 3;
+}
+
+// Response for add to cart operations with stock info
+message AddCartItemResponse {
+    CartData cart = 1;
+    bool success = 2;
+    string message = 3;
+    int32 available_stock = 4;       // Current available stock
+}
+
+// Bulk add response with individual item status
+message BulkAddCartItemsResponse {
+    CartData cart = 1;
+    bool all_success = 2;
+    repeated CartItemStatus item_statuses = 3;
+}
+
+message CartItemStatus {
+    string sku = 1;
+    string sub_sku = 2;
+    bool success = 3;
+    string message = 4;
+    int32 available_stock = 5;
+}
+
+// Request to remove a single item from cart
+message RemoveCartItemRequest {
+    string user_id = 1;
+    string sku = 2;
+}
+
+// Request to remove multiple items from cart
+message BulkRemoveCartItemsRequest {
+    string user_id = 1;
+    repeated string skus = 2;
+}
+
+// Request to update item quantity in cart
+message UpdateCartItemRequest {
+    string user_id = 1;
+    string sku = 2;
+    int32 quantity = 3;
+}
+
+// Request to get cart by user ID
+message GetCartRequest {
+    string user_id = 1;
+}
+
+// Request to clear cart
+message ClearCartRequest {
+    string user_id = 1;
+}
+
+// Response for multiple carts (admin/filtering)
+message FilterCartRequest {
+    optional string user_id = 1;
+    int32 size = 2;
+    optional string cursor = 3;
+    optional common.SortBy sort_by = 4;
+}
+
+message MultipleCartResponse {
+    repeated CartData data = 1;
+    string next_token = 2;
+    int32 total = 3;
+}
+
+
+
+
+

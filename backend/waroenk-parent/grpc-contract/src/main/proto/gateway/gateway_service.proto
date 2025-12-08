@@ -1,0 +1,164 @@
+syntax = "proto3";
+
+package gateway;
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.gateway";
+option java_outer_classname = "GatewayServiceProto";
+
+// Service for microservices to register themselves with the API Gateway
+service GatewayRegistrationService {
+    // Register a service and its routes with the gateway
+    // This is idempotent - registering the same routes again will update them
+    rpc RegisterService (ServiceDefinition) returns (RegistrationAck);
+    
+    // Unregister a service (removes all its routes)
+    rpc UnregisterService (UnregisterRequest) returns (RegistrationAck);
+    
+    // Send heartbeat to keep service active
+    rpc Heartbeat (ServicePing) returns (HeartbeatAck);
+    
+    // Check if a route is already registered (for smart registration)
+    rpc CheckRoutes (RouteCheckRequest) returns (RouteCheckResponse);
+}
+
+// Service definition with all its routes
+message ServiceDefinition {
+    // Unique service name (e.g., "member", "catalog")
+    string name = 1;
+    
+    // Protocol (default: "grpc")
+    string protocol = 2;
+    
+    // Host address where the service is running
+    string host = 3;
+    
+    // gRPC port number
+    int32 port = 4;
+    
+    // Optional: URL to download descriptor file (if reflection not supported)
+    string descriptor_url = 5;
+    
+    // List of routes this service exposes
+    repeated RouteDefinition routes = 6;
+    
+    // Whether to use TLS for gRPC connection
+    bool use_tls = 7;
+    
+    // Service version (for tracking updates)
+    string version = 8;
+}
+
+// Individual route definition
+message RouteDefinition {
+    // HTTP method (GET, POST, PUT, DELETE, PATCH)
+    string http_method = 1;
+    
+    // HTTP path pattern (e.g., "/api/user/register")
+    string path = 2;
+    
+    // Full gRPC service name (e.g., "member.user.UserService")
+    string grpc_service = 3;
+    
+    // gRPC method name (e.g., "Register")
+    string grpc_method = 4;
+    
+    // OPTIONAL: Fully qualified request message type
+    // The gateway now uses gRPC Server Reflection to discover types dynamically.
+    // This field is kept for backward compatibility but is no longer required.
+    string request_type = 5;
+    
+    // OPTIONAL: Fully qualified response message type
+    // The gateway now uses gRPC Server Reflection to discover types dynamically.
+    // This field is kept for backward compatibility but is no longer required.
+    string response_type = 6;
+    
+    // Whether this endpoint is public (no auth required)
+    bool public_endpoint = 7;
+    
+    // Required roles for this endpoint (empty = any authenticated user)
+    repeated string required_roles = 8;
+    
+    // Route version/hash for change detection
+    string route_hash = 9;
+}
+
+// Registration acknowledgment
+message RegistrationAck {
+    bool success = 1;
+    string message = 2;
+    
+    // Number of routes registered/updated
+    int32 routes_registered = 3;
+    
+    // Number of routes that were already up-to-date (skipped)
+    int32 routes_skipped = 4;
+    
+    // Service ID assigned by gateway
+    string service_id = 5;
+}
+
+// Unregister request
+message UnregisterRequest {
+    string service_name = 1;
+}
+
+// Heartbeat ping
+message ServicePing {
+    string service_name = 1;
+    
+    // Optional: current service status
+    ServiceStatus status = 2;
+}
+
+// Service status enum
+enum ServiceStatus {
+    UNKNOWN = 0;
+    HEALTHY = 1;
+    DEGRADED = 2;
+    UNHEALTHY = 3;
+}
+
+// Heartbeat acknowledgment
+message HeartbeatAck {
+    bool active = 1;
+    
+    // Time until next expected heartbeat (seconds)
+    int32 heartbeat_interval = 2;
+    
+    // Server timestamp for sync
+    google.protobuf.Timestamp server_time = 3;
+}
+
+// Request to check if routes are already registered
+message RouteCheckRequest {
+    string service_name = 1;
+    
+    // Route hashes to check
+    repeated RouteHashCheck routes = 2;
+}
+
+// Route hash for checking
+message RouteHashCheck {
+    string http_method = 1;
+    string path = 2;
+    string route_hash = 3;
+}
+
+// Response with routes that need registration
+message RouteCheckResponse {
+    // Routes that are not registered or have changed
+    repeated RouteHashCheck routes_to_register = 1;
+    
+    // Routes that are already up-to-date
+    repeated RouteHashCheck routes_up_to_date = 2;
+}
+
+
+
+
+
+
+

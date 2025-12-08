@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package cart.system_parameter;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "cart/system_parameter/system_parameter_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.cart";
+option java_outer_classname = "CartSystemParameterServiceProto";
+
+service CartSystemParameterService {
+    rpc CreateSystemParameter(UpsertSystemParameterRequest) returns (SystemParameterData) {
+        option (google.api.http) = {
+            post: "/api/system-parameters"
+            body: "*"
+        };
+    }
+
+    rpc UpdateSystemParameter(UpsertSystemParameterRequest) returns (SystemParameterData) {
+        option (google.api.http) = {
+            put: "/api/system-parameters"
+            body: "*"
+        };
+    }
+
+    rpc DeleteSystemParameter(OneSystemParameterRequest) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/system-parameters/{variable}"
+        };
+    }
+
+    rpc FindSystemParameterByVariable(OneSystemParameterRequest) returns (SystemParameterData) {
+        option (google.api.http) = {
+            get: "/api/system-parameters/{variable}"
+        };
+    }
+
+    rpc FilterSystemParameters(MultipleSystemParameterRequest) returns (MultipleSystemParameterResponse) {
+        option (google.api.http) = {
+            get: "/api/system-parameters"
+        };
+    }
+}
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package catalog.variant;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "catalog/variant/variant_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "VariantServiceProto";
+
+service VariantService {
+    rpc CreateVariant(CreateVariantRequest) returns (VariantData) {
+        option (google.api.http) = {
+            post: "/api/variant"
+        };
+    }
+    rpc UpdateVariant(UpdateVariantRequest) returns (VariantData) {
+        option (google.api.http) = {
+            put: "/api/variant"
+        };
+    }
+    rpc DeleteVariant(common.Id) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/variant"
+        };
+    }
+    rpc FindVariantById(common.Id) returns (VariantData) {
+        option (google.api.http) = {
+            get: "/api/variant"
+        };
+    }
+    rpc FindVariantBySubSku(FindVariantBySubSkuRequest) returns (VariantData) {
+        option (google.api.http) = {
+            get: "/api/variant/by-sub-sku"
+        };
+    }
+    rpc FindVariantsBySku(FindVariantsBySkuRequest) returns (MultipleVariantResponse) {
+        option (google.api.http) = {
+            get: "/api/variant/by-sku"
+        };
+    }
+    rpc FilterVariant(FilterVariantRequest) returns (MultipleVariantResponse) {
+        option (google.api.http) = {
+            get: "/api/variant/filter"
+        };
+    }
+    rpc SetDefaultVariant(SetDefaultVariantRequest) returns (VariantData) {
+        option (google.api.http) = {
+            put: "/api/variant/set-default"
+        };
+    }
+}

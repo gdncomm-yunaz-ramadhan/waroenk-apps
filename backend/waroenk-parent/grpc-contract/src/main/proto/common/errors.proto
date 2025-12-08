@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package common;
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.common";
+option java_outer_classname = "ErrorProto";
+
+message ErrorResponse {
+    int32  code = 1;
+    string status = 2;
+    string message = 3;
+    map<string, FieldViolationList> errors = 4;
+    string trace_id = 5;
+    google.protobuf.Timestamp timestamp = 6;
+}
+
+message FieldViolationList {
+    repeated FieldViolation violation = 1;
+}
+
+// Describes a single validation failure.
+message FieldViolation {
+    // The path to the field that failed validation, e.g., "title".
+    string field = 1;
+    // A developer-facing description of the validation rule that failed.
+    string description = 2;
+    // Application-specific error code for this validation failure
+    string code = 3;
+}

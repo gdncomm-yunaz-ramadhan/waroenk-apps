@@ -1,0 +1,73 @@
+# ================================
+# API Gateway Module docker-compose.yml
+# Requires: waroenk-builder image and shared infrastructure
+# ================================
+
+services:
+  api-gateway:
+    image: waroenk-parent-api-gateway:latest
+    container_name: api-gateway
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    env_file:
+      - .env
+    networks:
+      - shared
+      - backend
+      - db
+      - redis-net
+    expose:
+      - "${HTTP_REST_PORT:-8080}"
+      - "${GRPC_SERVER_PORT:-6565}"
+    ports:
+      - "${HTTP_REST_PORT:-8080}:${HTTP_REST_PORT:-8080}"
+      - "${GRPC_SERVER_PORT:-6565}:${GRPC_SERVER_PORT:-6565}"
+    environment:
+      JAVA_OPTS: ${JAVA_OPTS:--Xms256m -Xmx512m}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-}
+      DB_HOSTS: ${DB_HOSTS:-postgres:5432}
+      DB_NAME: ${DB_NAME:-gatewaydb}
+      DB_SCHEMA: ${DB_SCHEMA:-public}
+      DB_USERNAME: ${DB_USERNAME:-admin}
+      DB_PASSWORD: ${DB_PASSWORD:-admin}
+      MIGRATE_DATABASE: ${MIGRATE_DATABASE:-true}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # To enable Sentinel mode, set these env vars:
+      # REDIS_SENTINEL_MASTER: mymaster
+      # REDIS_SENTINEL_NODES: sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
+      JWT_SECRET: ${JWT_SECRET:-c2VjdXJlLXNlY3JldC1rZXktZm9yLWp3dC10b2tlbi1nZW5lcmF0aW9uLW1pbmltdW0tMjU2LWJpdHM=}
+      MEMBER_GRPC_HOST: ${MEMBER_GRPC_HOST:-member}
+      MEMBER_GRPC_PORT: ${MEMBER_GRPC_PORT:-9090}
+      MEMBER_HTTP_PORT: ${MEMBER_HTTP_PORT:-8081}
+      CATALOG_GRPC_HOST: ${CATALOG_GRPC_HOST:-catalog}
+      CATALOG_GRPC_PORT: ${CATALOG_GRPC_PORT:-9091}
+      CATALOG_HTTP_PORT: ${CATALOG_HTTP_PORT:-8082}
+      CART_GRPC_HOST: ${CART_GRPC_HOST:-cart}
+      CART_GRPC_PORT: ${CART_GRPC_PORT:-9092}
+      CART_HTTP_PORT: ${CART_HTTP_PORT:-8083}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:${HTTP_REST_PORT:-8080}/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
+  shared:
+    name: shared-network
+    external: true
+  db:
+    name: postgres
+    external: true
+  redis-net:
+    name: redis-net
+    external: true

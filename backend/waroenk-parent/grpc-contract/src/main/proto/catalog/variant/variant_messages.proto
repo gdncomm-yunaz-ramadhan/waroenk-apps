@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package catalog.variant;
+
+import "common/base.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "VariantMessagesProto";
+
+message VariantMedia {
+    string url = 1;
+    string type = 2;
+    int32 sort_order = 3;
+    optional string alt_text = 4;
+}
+
+message VariantData {
+    string id = 1;
+    string sku = 2;
+    string sub_sku = 3;
+    string title = 4;
+    double price = 5;
+    bool is_default = 6;
+    google.protobuf.Struct attributes = 7;
+    optional string thumbnail = 8;
+    repeated VariantMedia media = 9;
+    google.protobuf.Timestamp created_at = 10;
+    google.protobuf.Timestamp updated_at = 11;
+}
+
+message CreateVariantRequest {
+    string sku = 1;
+    string title = 2;
+    double price = 3;
+    bool is_default = 4;
+    google.protobuf.Struct attributes = 5;
+    optional string thumbnail = 6;
+    repeated VariantMedia media = 7;
+}
+
+message UpdateVariantRequest {
+    string id = 1;
+    optional string sku = 2;
+    optional string title = 3;
+    optional double price = 4;
+    optional bool is_default = 5;
+    optional google.protobuf.Struct attributes = 6;
+    optional string thumbnail = 7;
+    repeated VariantMedia media = 8;
+}
+
+message SetDefaultVariantRequest {
+    string variant_id = 1;
+}
+
+message FindVariantBySubSkuRequest {
+    string sub_sku = 1;
+}
+
+message FindVariantsBySkuRequest {
+    string sku = 1;
+    int32 size = 2;
+    optional string cursor = 3;
+    optional common.SortBy sort_by = 4;
+}
+
+message FilterVariantRequest {
+    optional string sku = 1;
+    optional string sub_sku = 2;
+    optional double min_price = 3;
+    optional double max_price = 4;
+    int32 size = 5;
+    optional string cursor = 6;
+    optional common.SortBy sort_by = 7;
+}
+
+message MultipleVariantResponse {
+    repeated VariantData data = 1;
+    string next_token = 2;
+    int32 total = 3;
+}

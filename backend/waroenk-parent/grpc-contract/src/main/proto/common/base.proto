@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package common;
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.common";
+option java_outer_classname = "BaseProto";
+
+message Id {string value = 1;}
+
+message Empty {}
+
+message Basic {bool status = 1;}
+
+message SortBy {string field = 1;
+    string direction = 2;}

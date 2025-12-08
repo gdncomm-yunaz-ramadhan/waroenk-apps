@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package catalog.brand;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "catalog/brand/brand_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "BrandServiceProto";
+
+service BrandService {
+    rpc CreateBrand(CreateBrandRequest) returns (BrandData) {
+        option (google.api.http) = {
+            post: "/api/brand"
+        };
+    }
+    rpc UpdateBrand(UpdateBrandRequest) returns (BrandData) {
+        option (google.api.http) = {
+            put: "/api/brand"
+        };
+    }
+    rpc DeleteBrand(common.Id) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/brand"
+        };
+    }
+    rpc FindBrandById(common.Id) returns (BrandData) {
+        option (google.api.http) = {
+            get: "/api/brand"
+        };
+    }
+    rpc FindBrandBySlug(FindBrandBySlugRequest) returns (BrandData) {
+        option (google.api.http) = {
+            get: "/api/brand/by-slug"
+        };
+    }
+    rpc FilterBrand(FilterBrandRequest) returns (MultipleBrandResponse) {
+        option (google.api.http) = {
+            get: "/api/brand/filter"
+        };
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package catalog.category;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "catalog/category/category_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "CategoryServiceProto";
+
+service CategoryService {
+    rpc CreateCategory(CreateCategoryRequest) returns (CategoryData) {
+        option (google.api.http) = {
+            post: "/api/category"
+        };
+    }
+    rpc UpdateCategory(UpdateCategoryRequest) returns (CategoryData) {
+        option (google.api.http) = {
+            put: "/api/category"
+        };
+    }
+    rpc DeleteCategory(common.Id) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/category"
+        };
+    }
+    rpc FindCategoryById(common.Id) returns (CategoryData) {
+        option (google.api.http) = {
+            get: "/api/category"
+        };
+    }
+    rpc FindCategoryBySlug(FindCategoryBySlugRequest) returns (CategoryData) {
+        option (google.api.http) = {
+            get: "/api/category/by-slug"
+        };
+    }
+    rpc FilterCategory(FilterCategoryRequest) returns (MultipleCategoryResponse) {
+        option (google.api.http) = {
+            get: "/api/category/filter"
+        };
+    }
+    rpc GetCategoryTree(common.Empty) returns (CategoryTreeResponse) {
+        option (google.api.http) = {
+            get: "/api/category/tree"
+        };
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

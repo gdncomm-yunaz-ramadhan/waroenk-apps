@@ -1,0 +1,150 @@
+syntax = "proto3";
+
+package catalog.inventory;
+
+import "common/base.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "InventoryMessagesProto";
+
+message InventoryData {
+    string id = 1;
+    string sub_sku = 2;
+    int64 stock = 3;
+    google.protobuf.Timestamp created_at = 4;
+    google.protobuf.Timestamp updated_at = 5;
+}
+
+message CreateInventoryRequest {
+    string sub_sku = 1;
+    int64 stock = 2;
+}
+
+message UpdateInventoryRequest {
+    string id = 1;
+    optional string sub_sku = 2;
+    optional int64 stock = 3;
+}
+
+message UpdateStockBySubSkuRequest {
+    string sub_sku = 1;
+    int64 stock = 2;
+}
+
+message AdjustStockRequest {
+    string sub_sku = 1;
+    int64 quantity = 2;
+}
+
+message FindInventoryBySubSkuRequest {
+    string sub_sku = 1;
+}
+
+message FilterInventoryRequest {
+    optional string sub_sku = 1;
+    optional int64 min_stock = 2;
+    optional int64 max_stock = 3;
+    int32 size = 4;
+    optional string cursor = 5;
+    optional common.SortBy sort_by = 6;
+}
+
+message MultipleInventoryResponse {
+    repeated InventoryData data = 1;
+    string next_token = 2;
+    int32 total = 3;
+}
+
+message BulkUpdateStockRequest {
+    repeated UpdateStockBySubSkuRequest items = 1;
+}
+
+message BulkUpdateStockResponse {
+    repeated InventoryData data = 1;
+    int32 success_count = 2;
+    int32 failure_count = 3;
+}
+
+// ============================================================
+// Bulk Inventory Operations for Cart/Checkout
+// ============================================================
+
+// Single stock operation item
+message StockOperationItem {
+    string sub_sku = 1;
+    int64 quantity = 2;
+}
+
+// Single stock operation result
+message StockOperationResult {
+    string sub_sku = 1;
+    bool success = 2;
+    string message = 3;
+    int64 current_stock = 4;
+    int64 requested_quantity = 5;
+}
+
+// Bulk lock stock request - reserve inventory for checkout
+message BulkLockStockRequest {
+    string checkout_id = 1;
+    repeated StockOperationItem items = 2;
+    int32 lock_ttl_seconds = 3; // TTL for the lock, default 900 (15 min)
+}
+
+// Bulk lock stock response
+message BulkLockStockResponse {
+    string checkout_id = 1;
+    repeated StockOperationResult results = 2;
+    bool all_success = 3;
+    int32 success_count = 4;
+    int32 failure_count = 5;
+}
+
+// Bulk acquire stock request - confirm reservation and reduce stock
+message BulkAcquireStockRequest {
+    string checkout_id = 1;
+    repeated StockOperationItem items = 2;
+}
+
+// Bulk acquire stock response
+message BulkAcquireStockResponse {
+    string checkout_id = 1;
+    repeated StockOperationResult results = 2;
+    bool all_success = 3;
+    int32 success_count = 4;
+    int32 failure_count = 5;
+}
+
+// Bulk release stock request - return reserved stock
+message BulkReleaseStockRequest {
+    string checkout_id = 1;
+    repeated StockOperationItem items = 2;
+}
+
+// Bulk release stock response
+message BulkReleaseStockResponse {
+    string checkout_id = 1;
+    repeated StockOperationResult results = 2;
+    bool all_success = 3;
+    int32 success_count = 4;
+    int32 failure_count = 5;
+}
+
+// Bulk adjust stock request - adjust stock by quantity (positive or negative)
+message BulkAdjustStockRequest {
+    repeated AdjustStockRequest items = 1;
+}
+
+// Bulk adjust stock response
+message BulkAdjustStockResponse {
+    repeated StockOperationResult results = 1;
+    bool all_success = 2;
+    int32 success_count = 3;
+    int32 failure_count = 4;
+}
+
+
+
+

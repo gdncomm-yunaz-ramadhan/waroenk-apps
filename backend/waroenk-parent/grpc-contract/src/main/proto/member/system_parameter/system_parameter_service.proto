@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package member.system_parameter;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "member/system_parameter/system_parameter_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.member";
+option java_outer_classname = "SystemParameterServiceProto";
+
+service SystemParameterService {
+    rpc UpsertSystemParameter(UpsertSystemParameterRequest) returns (SystemParameterData){
+        option (google.api.http) = {
+            post: "/api/system-parameter"
+        };
+    }
+    rpc DeleteSystemParameter(OneSystemParameterRequest) returns (common.Basic){
+        option (google.api.http) = {
+            delete: "/api/system-parameter"
+        };
+    }
+    rpc FindOneSystemParameter(OneSystemParameterRequest) returns (SystemParameterData){
+        option (google.api.http) = {
+            get: "/api/system-parameter"
+        };
+    }
+    rpc FindAllSystemParameter(MultipleSystemParameterRequest) returns (MultipleSystemParameterResponse){
+        option (google.api.http) = {
+            get: "/api/system-parameter/all"
+        };
+    }
+}

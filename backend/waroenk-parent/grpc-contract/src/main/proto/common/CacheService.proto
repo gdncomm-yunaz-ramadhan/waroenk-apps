@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package common;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.common";
+option java_outer_classname = "CacheServiceProto";
+
+service CacheService {
+  rpc FlushAll (common.Empty) returns (common.Basic) {
+    option (google.api.http) = {
+      delete: "/api/cache/flush-all"
+    };
+  }
+
+  rpc Flush (FlushPattern) returns (common.Basic) {
+    option (google.api.http) = {
+      delete: "/api/cache/flush"
+    };
+  }
+}
+
+message FlushPattern {
+  string key = 1;
+}

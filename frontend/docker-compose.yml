@@ -1,0 +1,59 @@
+services:
+  # ===========================================
+  # Frontend - Development Mode
+  # ===========================================
+  frontend-dev:
+    image: waroenk-frontend:dev
+    container_name: waroenk-frontend-dev
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      # Use api-gateway container name when running in Docker network
+      - VITE_API_URL=http://api-gateway:8080
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 450M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    profiles:
+      - dev
+
+  # ===========================================
+  # Frontend - Production Mode (with nginx proxy)
+  # ===========================================
+  frontend:
+    image: waroenk-frontend:latest
+    container_name: waroenk-frontend
+    ports:
+      - "5173:3000"
+    environment:
+      - NODE_ENV=production
+      # For production, nginx should proxy to api-gateway
+      - API_PROXY_TARGET=http://api-gateway:8080
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 64M
+    restart: unless-stopped
+    profiles:
+      - prod
+
+networks:
+  backend:
+    name: backend
+    external: true

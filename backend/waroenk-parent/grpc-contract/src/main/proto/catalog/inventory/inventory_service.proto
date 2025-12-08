@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+package catalog.inventory;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "catalog/inventory/inventory_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "InventoryServiceProto";
+
+service InventoryService {
+    rpc CreateInventory(CreateInventoryRequest) returns (InventoryData) {
+        option (google.api.http) = {
+            post: "/api/inventory"
+        };
+    }
+    rpc UpdateInventory(UpdateInventoryRequest) returns (InventoryData) {
+        option (google.api.http) = {
+            put: "/api/inventory"
+        };
+    }
+    rpc UpdateStockBySubSku(UpdateStockBySubSkuRequest) returns (InventoryData) {
+        option (google.api.http) = {
+            put: "/api/inventory/by-sub-sku"
+        };
+    }
+    rpc AdjustStock(AdjustStockRequest) returns (InventoryData) {
+        option (google.api.http) = {
+            patch: "/api/inventory/adjust"
+        };
+    }
+    rpc BulkUpdateStock(BulkUpdateStockRequest) returns (BulkUpdateStockResponse) {
+        option (google.api.http) = {
+            put: "/api/inventory/bulk"
+        };
+    }
+    rpc DeleteInventory(common.Id) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/inventory"
+        };
+    }
+    rpc FindInventoryById(common.Id) returns (InventoryData) {
+        option (google.api.http) = {
+            get: "/api/inventory"
+        };
+    }
+    rpc FindInventoryBySubSku(FindInventoryBySubSkuRequest) returns (InventoryData) {
+        option (google.api.http) = {
+            get: "/api/inventory/by-sub-sku"
+        };
+    }
+    rpc FilterInventory(FilterInventoryRequest) returns (MultipleInventoryResponse) {
+        option (google.api.http) = {
+            get: "/api/inventory/filter"
+        };
+    }
+
+    // Bulk lock stock for checkout - reserve inventory
+    rpc BulkLockStock(BulkLockStockRequest) returns (BulkLockStockResponse) {
+        option (google.api.http) = {
+            post: "/api/inventory/bulk-lock"
+            body: "*"
+        };
+    }
+
+    // Bulk acquire stock - confirm reservation and reduce stock
+    rpc BulkAcquireStock(BulkAcquireStockRequest) returns (BulkAcquireStockResponse) {
+        option (google.api.http) = {
+            post: "/api/inventory/bulk-acquire"
+            body: "*"
+        };
+    }
+
+    // Bulk release stock - return reserved stock
+    rpc BulkReleaseStock(BulkReleaseStockRequest) returns (BulkReleaseStockResponse) {
+        option (google.api.http) = {
+            post: "/api/inventory/bulk-release"
+            body: "*"
+        };
+    }
+
+    // Bulk adjust stock - adjust stock by quantity
+    rpc BulkAdjustStock(BulkAdjustStockRequest) returns (BulkAdjustStockResponse) {
+        option (google.api.http) = {
+            post: "/api/inventory/bulk-adjust"
+            body: "*"
+        };
+    }
+}
+
+
+
+

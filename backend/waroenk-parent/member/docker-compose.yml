@@ -1,0 +1,65 @@
+# ================================
+# Member Module docker-compose.yml
+# Builds and runs member service with its dependencies
+# ================================
+
+services:
+  member:
+    image: waroenk-parent-member:latest
+    container_name: member
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 256M
+    env_file:
+      - .env
+    networks:
+      - shared
+      - db
+      - redis-net
+      - backend
+    # Expose to host for development
+    # Note: Port 8080 is reserved for API Gateway
+    ports:
+      - "8081:8081"   # Member HTTP
+      - "9090:9090"   # Member gRPC
+    environment:
+      HTTP_REST_PORT: 8081
+      JAVA_OPTS: ${JAVA_OPTS}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+      # Redis config (Standalone mode by default)
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # To enable Sentinel mode, set these env vars:
+      # REDIS_SENTINEL_MASTER: mymaster
+      # REDIS_SENTINEL_NODES: sentinel-1:26379,sentinel-2:26379,sentinel-3:26379
+      # Database config
+      DB_HOSTS: ${DB_HOSTS:-postgres:5432}
+      DB_NAME: ${DB_NAME:-userdb}
+      DB_SCHEMA: ${DB_SCHEMA:-public}
+      DB_USERNAME: ${DB_USERNAME:-admin}
+      DB_PASSWORD: ${DB_PASSWORD:-admin}
+      MIGRATE_DATABASE: ${MIGRATE_DATABASE:-true}
+      # Set to true once to fix migration checksum, then remove
+      FLYWAY_REPAIR: ${FLYWAY_REPAIR:-false}
+      # API Gateway registration
+      GATEWAY_REGISTRATION_ENABLED: ${GATEWAY_REGISTRATION_ENABLED:-true}
+      GATEWAY_HOST: ${GATEWAY_HOST:-api-gateway}
+      GATEWAY_GRPC_PORT: ${GATEWAY_GRPC_PORT:-6565}
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
+  shared:
+    name: shared-network
+    external: true
+  db:
+    name: postgres
+    external: true
+  redis-net:
+    name: redis-net
+    external: true

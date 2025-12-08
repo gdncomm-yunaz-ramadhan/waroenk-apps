@@ -1,0 +1,175 @@
+# ================================
+# Waroenk Backend - Docker Compose
+# Uses shared Maven cache for efficient builds
+# ================================
+
+x-maven-cache: &maven-cache
+  - maven-repo:/root/.m2/repository
+
+x-common-build: &common-build
+  context: .
+
+x-common-deploy: &common-deploy
+  resources:
+    limits:
+      memory: 512M
+    reservations:
+      memory: 256M
+
+x-common-networks: &common-networks
+  - shared
+  - backend
+
+services:
+  # ================================
+  # Builder Service - Run FIRST to build all modules
+  # ================================
+  builder:
+    image: waroenk-builder:latest
+    build:
+      <<: *common-build
+      dockerfile: Dockerfile.builder
+    container_name: waroenk-builder
+    volumes: *maven-cache
+    networks:
+      - backend
+
+  # ================================
+  # Member Service
+  # Note: Port 8080 is reserved for API Gateway
+  # ================================
+  member:
+    image: waroenk-parent-member:latest
+    build:
+      <<: *common-build
+      dockerfile: member/Dockerfile
+    container_name: member
+    deploy: *common-deploy
+    env_file:
+      - member/.env
+    networks: *common-networks
+    expose:
+      - "${MEMBER_GRPC_PORT:-9090}"
+      - "${MEMBER_HTTP_PORT:-8081}"
+    ports:
+      - "${MEMBER_HTTP_PORT:-8081}:${MEMBER_HTTP_PORT:-8081}"
+      - "${MEMBER_GRPC_PORT:-9090}:${MEMBER_GRPC_PORT:-9090}"
+    environment:
+      HTTP_REST_PORT: ${MEMBER_HTTP_PORT:-8081}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms128m -Xmx256m}
+      MAVEN_OPTS: -Dmaven.repo.local=/root/.m2/repository
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      # To enable Sentinel: REDIS_SENTINEL_MASTER=mymaster REDIS_SENTINEL_NODES=sentinel-1:26379,...
+      DB_HOSTS: ${DB_HOSTS:-postgres:5432}
+      DB_NAME: ${MEMBER_DB_NAME:-userdb}
+      DB_SCHEMA: ${DB_SCHEMA:-public}
+      DB_USERNAME: ${DB_USERNAME:-admin}
+      DB_PASSWORD: ${DB_PASSWORD:-admin}
+
+  # ================================
+  # Catalog Service
+  # ================================
+  catalog:
+    image: waroenk-parent-catalog:latest
+    build:
+      <<: *common-build
+      dockerfile: catalog/Dockerfile
+    container_name: catalog
+    deploy: *common-deploy
+    env_file:
+      - catalog/.env
+    networks: *common-networks
+    expose:
+      - "${CATALOG_GRPC_PORT:-9091}"
+      - "${CATALOG_HTTP_PORT:-8082}"
+    ports:
+      - "${CATALOG_HTTP_PORT:-8082}:${CATALOG_HTTP_PORT:-8082}"
+      - "${CATALOG_GRPC_PORT:-9091}:${CATALOG_GRPC_PORT:-9091}"
+    environment:
+      HTTP_REST_PORT: ${CATALOG_HTTP_PORT:-8082}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms128m -Xmx256m}
+      MAVEN_OPTS: -Dmaven.repo.local=/root/.m2/repository
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      # To enable Sentinel: REDIS_SENTINEL_MASTER=mymaster REDIS_SENTINEL_NODES=sentinel-1:26379,...
+      TYPESENSE_HOST: typesense
+      TYPESENSE_PORT: 8108
+      MONGODB_URI: mongodb://admin:admin@mongodb:27017/catalog?authSource=admin
+
+  # ================================
+  # Cart Service
+  # ================================
+  cart:
+    image: waroenk-parent-cart:latest
+    build:
+      <<: *common-build
+      dockerfile: cart/Dockerfile
+    container_name: cart
+    deploy: *common-deploy
+    env_file:
+      - cart/.env
+    networks: *common-networks
+    expose:
+      - "${CART_GRPC_PORT:-9092}"
+      - "${CART_HTTP_PORT:-8083}"
+    ports:
+      - "${CART_HTTP_PORT:-8083}:${CART_HTTP_PORT:-8083}"
+      - "${CART_GRPC_PORT:-9092}:${CART_GRPC_PORT:-9092}"
+    environment:
+      HTTP_REST_PORT: ${CART_HTTP_PORT:-8083}
+      JAVA_OPTS: ${JAVA_OPTS:--Xms128m -Xmx256m}
+      MAVEN_OPTS: -Dmaven.repo.local=/root/.m2/repository
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      REDIS_HOST: ${REDIS_HOST:-redis}
+      REDIS_PORT: ${REDIS_PORT:-6379}
+      # To enable Sentinel: REDIS_SENTINEL_MASTER=mymaster REDIS_SENTINEL_NODES=sentinel-1:26379,...
+
+  # ================================
+  # API Gateway Service
+  # ================================
+  api-gateway:
+    image: waroenk-parent-api-gateway:latest
+    build:
+      <<: *common-build
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    deploy: *common-deploy
+    env_file:
+      - api-gateway/.env
+    networks: *common-networks
+    expose:
+      - "8080"
+      - "${GATEWAY_GRPC_PORT:-6565}"
+    ports:
+      - "8080:8080"
+      - "${GATEWAY_GRPC_PORT:-6565}:${GATEWAY_GRPC_PORT:-6565}"
+    environment:
+      HTTP_REST_PORT: 8080
+      JAVA_OPTS: ${JAVA_OPTS:--Xms128m -Xmx256m}
+      MAVEN_OPTS: -Dmaven.repo.local=/root/.m2/repository
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+      MEMBER_GRPC_HOST: member
+      MEMBER_GRPC_PORT: ${MEMBER_GRPC_PORT:-9090}
+      CATALOG_GRPC_HOST: catalog
+      CATALOG_GRPC_PORT: ${CATALOG_GRPC_PORT:-9091}
+      CART_GRPC_HOST: cart
+      CART_GRPC_PORT: ${CART_GRPC_PORT:-9092}
+    depends_on:
+      - member
+      - catalog
+      - cart
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
+  shared:
+    name: shared-network
+    external: true
+
+volumes:
+  maven-repo:
+    name: waroenk-maven-repo

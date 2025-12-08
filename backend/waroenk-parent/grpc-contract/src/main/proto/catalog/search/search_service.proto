@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package catalog.search;
+
+import "google/api/annotations.proto";
+import "catalog/search/search_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "SearchServiceProto";
+
+service SearchService {
+    // Combined search across products and merchants
+    rpc Search(CombinedSearchRequest) returns (CombinedSearchResponse) {
+        option (google.api.http) = {
+            get: "/api/search"
+        };
+    }
+
+    // Search products only
+    rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse) {
+        option (google.api.http) = {
+            get: "/api/search/products"
+        };
+    }
+
+    // Search merchants only
+    rpc SearchMerchants(SearchMerchantsRequest) returns (SearchMerchantsResponse) {
+        option (google.api.http) = {
+            get: "/api/search/merchants"
+        };
+    }
+
+    // Get verbose product details by subSku or sku
+    rpc GetProductDetails(GetProductDetailsRequest) returns (GetProductDetailsResponse) {
+        option (google.api.http) = {
+            get: "/api/product/details"
+        };
+    }
+
+    // Get product summary by multiple subSkus
+    rpc GetProductSummary(GetProductSummaryRequest) returns (GetProductSummaryResponse) {
+        option (google.api.http) = {
+            post: "/api/product/summary"
+            body: "*"
+        };
+    }
+
+    // Check inventory for multiple subSkus
+    rpc CheckInventory(CheckInventoryRequest) returns (CheckInventoryResponse) {
+        option (google.api.http) = {
+            post: "/api/inventory/check"
+            body: "*"
+        };
+    }
+}
+
+

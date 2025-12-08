@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package catalog.seed;
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "SeedMessagesProto";
+
+// Request for bulk SKU indexing
+message IndexBySkusRequest {
+    repeated string skus = 1;
+}
+
+// Response for indexing operations
+message SeedResponse {
+    string status = 1;
+    string message = 2;
+}
+
+// Detailed response for bulk indexing
+message BulkIndexResponse {
+    string status = 1;
+    string message = 2;
+    int32 total_requested = 3;
+    int32 total_indexed = 4;
+    int32 total_failed = 5;
+    repeated string failed_skus = 6;
+}

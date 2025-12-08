@@ -1,0 +1,50 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    hostname: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--protected-mode",
+        "no",
+        "--maxmemory",
+        "200mb",
+        "--maxmemory-policy",
+        "allkeys-lru"
+      ]
+    networks:
+      - waroenk-network
+      - redis-net
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis_data:
+
+networks:
+  waroenk-network:
+    name: waroenk-network
+    external: true
+  redis-net:
+    name: redis-net
+    driver: bridge

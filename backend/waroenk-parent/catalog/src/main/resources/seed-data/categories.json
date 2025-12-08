@@ -1,0 +1,366 @@
+[
+  {
+    "id": "cat-arts-crafts-sewing",
+    "name": "Arts Crafts & Sewing",
+    "slug": "arts-crafts-sewing",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/scissors.png"
+  },
+  {
+    "id": "cat-auto-tires",
+    "name": "Auto & Tires",
+    "slug": "auto-tires",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/tire.png"
+  },
+  {
+    "id": "cat-automotive",
+    "name": "Automotive",
+    "slug": "automotive",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/car.png"
+  },
+  {
+    "id": "cat-baby",
+    "name": "Baby",
+    "slug": "baby",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/babys-room.png"
+  },
+  {
+    "id": "cat-beauty",
+    "name": "Beauty",
+    "slug": "beauty",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/lipstick.png"
+  },
+  {
+    "id": "cat-books",
+    "name": "Books",
+    "slug": "books",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/book.png"
+  },
+  {
+    "id": "cat-cell-phones",
+    "name": "Cell Phones",
+    "slug": "cell-phones",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/smartphone.png"
+  },
+  {
+    "id": "cat-character-shop",
+    "name": "Character Shop",
+    "slug": "character-shop",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/action-figure.png"
+  },
+  {
+    "id": "cat-clothing",
+    "name": "Clothing",
+    "slug": "clothing",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/clothes.png"
+  },
+  {
+    "id": "cat-collectibles",
+    "name": "Collectibles",
+    "slug": "collectibles",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/trophy.png"
+  },
+  {
+    "id": "cat-electronics",
+    "name": "Electronics",
+    "slug": "electronics",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/electronics.png"
+  },
+  {
+    "id": "cat-fashion",
+    "name": "Fashion",
+    "slug": "fashion",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/t-shirt.png"
+  },
+  {
+    "id": "cat-feature",
+    "name": "Feature",
+    "slug": "feature",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/star.png"
+  },
+  {
+    "id": "cat-food",
+    "name": "Food",
+    "slug": "food",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/food.png"
+  },
+  {
+    "id": "cat-general",
+    "name": "General Merchandise",
+    "slug": "general-merchandise",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/shopping-bag.png"
+  },
+  {
+    "id": "cat-grocery",
+    "name": "Grocery",
+    "slug": "grocery",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/shopping-cart.png"
+  },
+  {
+    "id": "cat-health",
+    "name": "Health",
+    "slug": "health",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/health-checkup.png"
+  },
+  {
+    "id": "cat-home",
+    "name": "Home",
+    "slug": "home",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/home.png"
+  },
+  {
+    "id": "cat-home-appliances",
+    "name": "Home Appliances",
+    "slug": "home-appliances",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/washing-machine.png"
+  },
+  {
+    "id": "cat-home-improvement",
+    "name": "Home Improvement",
+    "slug": "home-improvement",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/hammer.png"
+  },
+  {
+    "id": "cat-household-essentials",
+    "name": "Household Essentials",
+    "slug": "household-essentials",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/broom.png"
+  },
+  {
+    "id": "cat-industrial-scientific",
+    "name": "Industrial & Scientific",
+    "slug": "industrial-scientific",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/test-tube.png"
+  },
+  {
+    "id": "cat-jewelry",
+    "name": "Jewelry",
+    "slug": "jewelry",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/diamond.png"
+  },
+  {
+    "id": "cat-laptops",
+    "name": "Laptops & Computers",
+    "slug": "laptops-computers",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/laptop.png"
+  },
+  {
+    "id": "cat-music",
+    "name": "Music",
+    "slug": "music",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/music.png"
+  },
+  {
+    "id": "cat-musical-instruments",
+    "name": "Musical Instruments",
+    "slug": "musical-instruments",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/guitar.png"
+  },
+  {
+    "id": "cat-office-supplies",
+    "name": "Office Supplies",
+    "slug": "office-supplies",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/stationery.png"
+  },
+  {
+    "id": "cat-party-occasions",
+    "name": "Party & Occasions",
+    "slug": "party-occasions",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/confetti.png"
+  },
+  {
+    "id": "cat-patio-garden",
+    "name": "Patio & Garden",
+    "slug": "patio-garden",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/potted-plant.png"
+  },
+  {
+    "id": "cat-personal-care",
+    "name": "Personal Care",
+    "slug": "personal-care",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/spa.png"
+  },
+  {
+    "id": "cat-pets",
+    "name": "Pets",
+    "slug": "pets",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/dog.png"
+  },
+  {
+    "id": "cat-premium-beauty",
+    "name": "Premium Beauty",
+    "slug": "premium-beauty",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/perfume.png"
+  },
+  {
+    "id": "cat-seasonal",
+    "name": "Seasonal",
+    "slug": "seasonal",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/christmas-tree.png"
+  },
+  {
+    "id": "cat-shoes",
+    "name": "Shoes & Footwear",
+    "slug": "shoes-footwear",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/womens-shoe.png"
+  },
+  {
+    "id": "cat-shop-by-brand",
+    "name": "Shop by Brand",
+    "slug": "shop-by-brand",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/price-tag.png"
+  },
+  {
+    "id": "cat-shop-by-movie",
+    "name": "Shop by Movie",
+    "slug": "shop-by-movie",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/clapperboard.png"
+  },
+  {
+    "id": "cat-shop-by-video-game",
+    "name": "Shop by Video Game",
+    "slug": "shop-by-video-game",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/game-controller.png"
+  },
+  {
+    "id": "cat-sports",
+    "name": "Sports & Outdoor",
+    "slug": "sports-outdoor",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/football2.png"
+  },
+  {
+    "id": "cat-sports-outdoors",
+    "name": "Sports & Outdoors",
+    "slug": "sports-outdoors",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/football2.png"
+  },
+  {
+    "id": "cat-toys",
+    "name": "Toys",
+    "slug": "toys",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/teddy-bear.png"
+  },
+  {
+    "id": "cat-video-games",
+    "name": "Video Games",
+    "slug": "video-games",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/game-controller.png"
+  },
+  {
+    "id": "cat-walmart-for-business",
+    "name": "Walmart for Business",
+    "slug": "walmart-for-business",
+    "parentId": null,
+    "iconUrl": "https://img.icons8.com/color/96/briefcase.png"
+  },
+  {
+    "id": "cat-bakery",
+    "name": "Bakery",
+    "slug": "bakery",
+    "parentId": "cat-grocery",
+    "iconUrl": "https://img.icons8.com/color/96/bread.png"
+  },
+  {
+    "id": "cat-beverages",
+    "name": "Beverages",
+    "slug": "beverages",
+    "parentId": "cat-grocery",
+    "iconUrl": "https://img.icons8.com/color/96/cola.png"
+  },
+  {
+    "id": "cat-bottomwear",
+    "name": "Bottomwear",
+    "slug": "bottomwear",
+    "parentId": "cat-fashion",
+    "iconUrl": "https://img.icons8.com/color/96/trousers.png"
+  },
+  {
+    "id": "cat-dairy",
+    "name": "Dairy",
+    "slug": "dairy",
+    "parentId": "cat-grocery",
+    "iconUrl": "https://img.icons8.com/color/96/milk-carton.png"
+  },
+  {
+    "id": "cat-fresh-produce",
+    "name": "Fresh Produce",
+    "slug": "fresh-produce",
+    "parentId": "cat-grocery",
+    "iconUrl": "https://img.icons8.com/color/96/vegetable.png"
+  },
+  {
+    "id": "cat-innerwear",
+    "name": "Innerwear and Swimwear",
+    "slug": "innerwear-and-swimwear",
+    "parentId": "cat-fashion",
+    "iconUrl": "https://img.icons8.com/color/96/swimsuit.png"
+  },
+  {
+    "id": "cat-pantry",
+    "name": "Pantry",
+    "slug": "pantry",
+    "parentId": "cat-grocery",
+    "iconUrl": "https://img.icons8.com/color/96/canned-food.png"
+  },
+  {
+    "id": "cat-sleepwear",
+    "name": "Sleepwear",
+    "slug": "sleepwear",
+    "parentId": "cat-fashion",
+    "iconUrl": "https://img.icons8.com/color/96/sleeping-in-bed.png"
+  },
+  {
+    "id": "cat-snacks",
+    "name": "Snacks",
+    "slug": "snacks",
+    "parentId": "cat-grocery",
+    "iconUrl": "https://img.icons8.com/color/96/popcorn.png"
+  },
+  {
+    "id": "cat-topwear",
+    "name": "Topwear",
+    "slug": "topwear",
+    "parentId": "cat-fashion",
+    "iconUrl": "https://img.icons8.com/color/96/t-shirt.png"
+  }
+]

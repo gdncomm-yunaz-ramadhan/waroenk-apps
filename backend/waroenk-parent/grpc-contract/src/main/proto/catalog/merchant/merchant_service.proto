@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package catalog.merchant;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "catalog/merchant/merchant_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "MerchantServiceProto";
+
+service MerchantService {
+    rpc CreateMerchant(CreateMerchantRequest) returns (MerchantData) {
+        option (google.api.http) = {
+            post: "/api/merchant"
+        };
+    }
+    rpc UpdateMerchant(UpdateMerchantRequest) returns (MerchantData) {
+        option (google.api.http) = {
+            put: "/api/merchant"
+        };
+    }
+    rpc DeleteMerchant(common.Id) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/merchant"
+        };
+    }
+    rpc FindMerchantById(common.Id) returns (MerchantData) {
+        option (google.api.http) = {
+            get: "/api/merchant"
+        };
+    }
+    rpc FindMerchantByCode(FindMerchantByCodeRequest) returns (MerchantData) {
+        option (google.api.http) = {
+            get: "/api/merchant/by-code"
+        };
+    }
+    rpc FilterMerchant(FilterMerchantRequest) returns (MultipleMerchantResponse) {
+        option (google.api.http) = {
+            get: "/api/merchant/filter"
+        };
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

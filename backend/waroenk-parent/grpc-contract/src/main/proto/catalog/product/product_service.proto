@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package catalog.product;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "catalog/product/product_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "ProductServiceProto";
+
+service ProductService {
+    rpc CreateProduct(CreateProductRequest) returns (ProductData) {
+        option (google.api.http) = {
+            post: "/api/product"
+        };
+    }
+    rpc UpdateProduct(UpdateProductRequest) returns (ProductData) {
+        option (google.api.http) = {
+            put: "/api/product"
+        };
+    }
+    rpc DeleteProduct(common.Id) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/product"
+        };
+    }
+    rpc FindProductById(common.Id) returns (ProductData) {
+        option (google.api.http) = {
+            get: "/api/product"
+        };
+    }
+    rpc FindProductBySku(FindProductBySkuRequest) returns (ProductData) {
+        option (google.api.http) = {
+            get: "/api/product/by-sku"
+        };
+    }
+    rpc FilterProduct(FilterProductRequest) returns (MultipleProductResponse) {
+        option (google.api.http) = {
+            get: "/api/product/filter"
+        };
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+

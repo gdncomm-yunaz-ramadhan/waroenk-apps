@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package cart.cart;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "cart/cart/cart_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.cart";
+option java_outer_classname = "CartServiceProto";
+
+service CartService {
+    // Get cart by user ID
+    rpc GetCart(GetCartRequest) returns (CartData) {
+        option (google.api.http) = {
+            get: "/api/cart/{user_id}"
+        };
+    }
+
+    // Add single item to cart (validates stock via catalog gRPC)
+    rpc AddItem(AddCartItemRequest) returns (AddCartItemResponse) {
+        option (google.api.http) = {
+            post: "/api/cart/add"
+            body: "*"
+        };
+    }
+
+    // Add multiple items to cart (validates stock via catalog gRPC)
+    rpc BulkAddItems(BulkAddCartItemsRequest) returns (BulkAddCartItemsResponse) {
+        option (google.api.http) = {
+            post: "/api/cart/bulk-add"
+            body: "*"
+        };
+    }
+
+    // Remove single item from cart
+    rpc RemoveItem(RemoveCartItemRequest) returns (CartData) {
+        option (google.api.http) = {
+            post: "/api/cart/remove"
+            body: "*"
+        };
+    }
+
+    // Remove multiple items from cart (bulk)
+    rpc BulkRemoveItems(BulkRemoveCartItemsRequest) returns (CartData) {
+        option (google.api.http) = {
+            post: "/api/cart/bulk-remove"
+            body: "*"
+        };
+    }
+
+    // Update item quantity in cart (validates stock via catalog gRPC)
+    rpc UpdateItem(UpdateCartItemRequest) returns (AddCartItemResponse) {
+        option (google.api.http) = {
+            put: "/api/cart/update"
+            body: "*"
+        };
+    }
+
+    // Clear entire cart
+    rpc ClearCart(ClearCartRequest) returns (common.Basic) {
+        option (google.api.http) = {
+            delete: "/api/cart/{user_id}"
+        };
+    }
+
+    // Filter carts (admin)
+    rpc FilterCarts(FilterCartRequest) returns (MultipleCartResponse) {
+        option (google.api.http) = {
+            get: "/api/cart/filter"
+        };
+    }
+}
+
+
+
+
+

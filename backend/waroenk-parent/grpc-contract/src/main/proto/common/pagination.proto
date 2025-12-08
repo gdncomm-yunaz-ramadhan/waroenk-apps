@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package common;
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.common";
+option java_outer_classname = "PaginationProto";
+
+message PaginationRequest {
+  int32 page = 1;
+  int32 size = 2;
+}
+
+message PaginationResponse {
+  int32 page = 1;
+  int32 size = 2;
+  int32 total_pages = 3;
+  int64 total_items = 4;
+}

@@ -1,0 +1,282 @@
+syntax = "proto3";
+
+package catalog.search;
+
+import "common/base.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "SearchMessagesProto";
+
+// Aggregated product data for search results
+message AggregatedProductData {
+    string id = 1;
+    string merchant_name = 2;
+    string merchant_location = 3;
+    bool in_stock = 4;
+    string title = 5;
+    string summary = 6;
+    string brand = 7;
+    string category = 8;
+    string thumbnail = 9;
+    string slug = 10;
+    google.protobuf.Struct attributes = 11;
+    repeated string variant_keywords = 12;
+    string sku = 13;
+    string sub_sku = 14;
+    optional double price = 15;
+    google.protobuf.Timestamp created_at = 16;
+    google.protobuf.Timestamp updated_at = 17;
+    string merchant_code = 18;
+    string category_code = 19;
+    repeated string category_names = 20;
+    repeated string category_codes = 21;
+}
+
+// Merchant data for search results
+message SearchMerchantData {
+    string id = 1;
+    string name = 2;
+    string code = 3;
+    string icon_url = 4;
+    string location = 5;
+    optional SearchContactInfo contact = 6;
+    optional float rating = 7;
+    google.protobuf.Timestamp created_at = 8;
+    google.protobuf.Timestamp updated_at = 9;
+}
+
+message SearchContactInfo {
+    string phone = 1;
+    string email = 2;
+}
+
+// Facet count for search results
+message FacetCount {
+    string field_name = 1;
+    repeated FacetCountValue counts = 2;
+    FacetStats stats = 3;
+}
+
+message FacetCountValue {
+    string value = 1;
+    int32 count = 2;
+    bool highlighted = 3;
+}
+
+message FacetStats {
+    optional double min = 1;
+    optional double max = 2;
+    optional double sum = 3;
+    optional double avg = 4;
+    optional int64 total_values = 5;
+}
+
+// Search products request with cursor pagination
+message SearchProductsRequest {
+    optional string query = 1;
+    optional string category = 2;
+    optional string brand = 3;
+    optional string merchant = 4;
+    optional string location = 5;
+    int32 size = 6;
+    optional string cursor = 7;
+    optional string sort_by = 8;
+    optional string sort_order = 9;
+    optional bool buyable = 10;
+}
+
+// Search products response with cursor pagination
+message SearchProductsResponse {
+    repeated AggregatedProductData contents = 1;
+    repeated FacetCount facet_counts = 2;
+    int32 total_returned = 3;
+    int32 total_match = 4;
+    int32 total_page = 5;
+    int64 took = 6;
+    optional string next_token = 7;
+}
+
+// Search merchants request with cursor pagination
+message SearchMerchantsRequest {
+    optional string query = 1;
+    int32 size = 2;
+    optional string cursor = 3;
+    optional string sort_by = 4;
+    optional string sort_order = 5;
+}
+
+// Search merchants response with cursor pagination
+message SearchMerchantsResponse {
+    repeated SearchMerchantData contents = 1;
+    repeated FacetCount facet_counts = 2;
+    int32 total_returned = 3;
+    int32 total_match = 4;
+    int32 total_page = 5;
+    int64 took = 6;
+    optional string next_token = 7;
+}
+
+// Combined search request (products + merchants) with cursor pagination
+message CombinedSearchRequest {
+    optional string query = 1;
+    int32 size = 2;
+    optional string cursor = 3;
+    optional string sort_by = 4;
+    optional string sort_order = 5;
+}
+
+// Combined search response with nested results
+message CombinedSearchResponse {
+    SearchProductsResponse products = 1;
+    SearchMerchantsResponse merchants = 2;
+    int32 total_returned = 3;
+    int32 total_match = 4;
+    int64 took = 5;
+    optional string next_token = 6;
+}
+
+// ============================================================
+// Product Details - Verbose product info with all related data
+// ============================================================
+
+// Brand detail for product details
+message BrandDetail {
+    string id = 1;
+    string name = 2;
+    string slug = 3;
+    optional string icon_url = 4;
+}
+
+// Category detail for product details
+message CategoryDetail {
+    string id = 1;
+    string name = 2;
+    string slug = 3;
+    optional string icon_url = 4;
+    optional string parent_id = 5;
+}
+
+// Merchant detail for product details
+message MerchantDetail {
+    string id = 1;
+    string name = 2;
+    string code = 3;
+    optional string icon_url = 4;
+    optional string location = 5;
+    optional float rating = 6;
+}
+
+// Stock info for product details (at product level)
+message StockInfo {
+    int64 total_stock = 1;
+    bool has_stock = 2;
+}
+
+// Price info for product details
+message PriceInfo {
+    double price = 1;
+    double discount = 2;
+}
+
+// Media for product details
+message ProductMedia {
+    string url = 1;
+    string type = 2;
+    int32 sort_order = 3;
+    optional string alt_text = 4;
+}
+
+// Simplified variant info
+message ProductVariantDetail {
+    string id = 1;
+    string sub_sku = 2;
+    optional string thumbnail = 3;
+    bool is_selected = 4;
+    bool has_stock = 5;
+}
+
+// Verbose product details response
+message ProductDetailData {
+    string id = 1;
+    string sku = 2;
+    string title = 3;
+    optional string short_description = 4;
+    repeated string tags = 5;
+    optional string detail_ref = 6;
+    
+    // Related entities
+    MerchantDetail merchant = 7;
+    BrandDetail brand = 8;
+    CategoryDetail category = 9;
+    
+    // Simplified variants
+    repeated ProductVariantDetail variants = 10;
+    
+    // Product-level medias
+    repeated ProductMedia medias = 11;
+    
+    // Product-level stock info
+    StockInfo stock = 12;
+    
+    // Product-level price info
+    PriceInfo price = 13;
+    
+    // Product-level attributes
+    google.protobuf.Struct attributes = 14;
+}
+
+// Get product details by ID (subSku or sku)
+message GetProductDetailsRequest {
+    string id = 1; // Can be subSku or sku
+}
+
+// Product details response
+message GetProductDetailsResponse {
+    ProductDetailData product = 1;
+    int64 took = 2;
+}
+
+// ============================================================
+// Product Summary - Batch lookup by subSkus
+// ============================================================
+
+// Get product summary by multiple subSkus
+message GetProductSummaryRequest {
+    repeated string sub_skus = 1;
+}
+
+// Product summary response (uses existing AggregatedProductData)
+message GetProductSummaryResponse {
+    repeated AggregatedProductData products = 1;
+    int32 total_found = 2;
+    int32 total_requested = 3;
+    int64 took = 4;
+}
+
+// ============================================================
+// Inventory Check - Batch inventory lookup with hasStock
+// ============================================================
+
+// Single inventory check item
+message InventoryCheckItem {
+    string sub_sku = 1;
+    int64 stock = 2;
+    bool has_stock = 3;
+    google.protobuf.Timestamp updated_at = 4;
+}
+
+// Check inventory by multiple subSkus
+message CheckInventoryRequest {
+    repeated string sub_skus = 1;
+}
+
+// Check inventory response
+message CheckInventoryResponse {
+    repeated InventoryCheckItem items = 1;
+    int32 total_found = 2;
+    int32 total_requested = 3;
+    int64 took = 4;
+}

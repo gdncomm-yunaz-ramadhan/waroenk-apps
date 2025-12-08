@@ -1,0 +1,208 @@
+syntax = "proto3";
+
+package cart.checkout;
+
+import "google/protobuf/timestamp.proto";
+import "cart/cart/cart_messages.proto";
+import "common/base.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.cart";
+option java_outer_classname = "CheckoutMessagesProto";
+
+// Address snapshot for shipping
+message AddressSnapshotData {
+    string recipient_name = 1;
+    string phone = 2;
+    string street = 3;
+    string city = 4;
+    string province = 5;
+    string district = 6;
+    string sub_district = 7;
+    string country = 8;
+    string postal_code = 9;
+    optional string notes = 10;
+    optional float latitude = 11;
+    optional float longitude = 12;
+}
+
+// Checkout item data
+message CheckoutItemData {
+    string sku = 1;
+    string sub_sku = 2;
+    string title = 3;
+    int64 price_snapshot = 4;
+    int32 quantity = 5;
+    int32 available_stock_snapshot = 6;
+    string image_url = 7;
+    map<string, string> attributes = 8;
+    bool reserved = 9;
+    optional string reservation_error = 10;
+}
+
+// Complete checkout data
+message CheckoutData {
+    string checkout_id = 1;
+    string user_id = 2;
+    optional string order_id = 3;           // Readable order ID
+    optional string payment_code = 4;       // Unique payment code
+    string source_cart_id = 5;
+    repeated CheckoutItemData items = 6;
+    int64 total_price = 7;
+    string currency = 8;
+    string status = 9;                      // WAITING, PAID, CANCELLED (EXPIRED is derived)
+    optional AddressSnapshotData shipping_address = 10;
+    google.protobuf.Timestamp locked_at = 11;
+    google.protobuf.Timestamp expires_at = 12;
+    google.protobuf.Timestamp created_at = 13;
+    optional google.protobuf.Timestamp paid_at = 14;
+    optional google.protobuf.Timestamp cancelled_at = 15;
+}
+
+// ============================================================
+// Prepare Checkout (Bulk Lock)
+// ============================================================
+
+// Request to prepare checkout (bulk lock inventory)
+message PrepareCheckoutRequest {
+    string user_id = 1;
+}
+
+// Response from prepare checkout with lock summary
+message PrepareCheckoutResponse {
+    CheckoutData checkout = 1;
+    bool success = 2;
+    string message = 3;
+    repeated SkuLockSummary sku_lock_summary = 4;
+}
+
+// Summary of lock result per SKU
+message SkuLockSummary {
+    string sku = 1;
+    string sub_sku = 2;
+    bool locked = 3;
+    int32 requested_quantity = 4;
+    int32 locked_quantity = 5;
+    int32 available_stock = 6;
+    optional string error_message = 7;
+}
+
+// ============================================================
+// Finalize Checkout (Select Address)
+// ============================================================
+
+// Request to finalize checkout with shipping address
+message FinalizeCheckoutRequest {
+    string checkout_id = 1;
+    optional string address_id = 2;          // Use existing address from member service
+    optional AddressSnapshotData new_address = 3;  // Or provide new address inline
+    string user_id = 4;                      // Authenticated user ID for ownership validation
+}
+
+// Response for finalize checkout
+message FinalizeCheckoutResponse {
+    CheckoutData checkout = 1;
+    bool success = 2;
+    string message = 3;
+    string order_id = 4;
+    string payment_code = 5;
+}
+
+// ============================================================
+// Payment & Cancellation
+// ============================================================
+
+// Request to simulate payment
+message PayCheckoutRequest {
+    string checkout_id = 1;
+    string user_id = 2;                      // Authenticated user ID for ownership validation
+}
+
+// Response for pay checkout
+message PayCheckoutResponse {
+    CheckoutData checkout = 1;
+    bool success = 2;
+    string message = 3;
+}
+
+// Request to cancel checkout
+message CancelCheckoutRequest {
+    string checkout_id = 1;
+    optional string reason = 2;
+    string user_id = 3;                      // Authenticated user ID for ownership validation
+}
+
+// Response for cancel checkout
+message CancelCheckoutResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+// ============================================================
+// Retrieval APIs
+// ============================================================
+
+// Request to get checkout by ID
+message GetCheckoutRequest {
+    string checkout_id = 1;
+    string user_id = 2;                      // Authenticated user ID for ownership validation
+}
+
+// Request to get checkout by user
+message GetCheckoutByUserRequest {
+    string user_id = 1;
+}
+
+// Filter checkouts request (with cursor pagination)
+message FilterCheckoutRequest {
+    optional string user_id = 1;
+    optional string order_id = 2;
+    optional string status = 3;
+    int32 size = 4;
+    optional string cursor = 5;
+    optional common.SortBy sort_by = 6;
+}
+
+// Multiple checkout response
+message MultipleCheckoutResponse {
+    repeated CheckoutData data = 1;
+    string next_token = 2;
+    int32 total = 3;
+}
+
+// ============================================================
+// Legacy Support (Deprecated)
+// ============================================================
+
+// Request to validate and reserve cart for checkout
+// @deprecated Use PrepareCheckoutRequest instead
+message ValidateCheckoutRequest {
+    string user_id = 1;
+}
+
+// Response from validate checkout
+// @deprecated Use PrepareCheckoutResponse instead
+message ValidateCheckoutResponse {
+    CheckoutData checkout = 1;
+    bool success = 2;
+    string message = 3;
+    repeated ValidationError errors = 4;
+}
+
+// Validation error for individual items
+message ValidationError {
+    string sku = 1;
+    string error_code = 2;
+    string message = 3;
+}
+
+// Request to invalidate/cancel checkout
+// @deprecated Use CancelCheckoutRequest instead
+message InvalidateCheckoutRequest {
+    string checkout_id = 1;
+}
+
+
+
+
+

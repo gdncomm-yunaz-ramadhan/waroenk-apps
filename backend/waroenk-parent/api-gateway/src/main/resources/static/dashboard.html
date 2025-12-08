@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waroenk Services Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0f1a;
+            --bg-secondary: #111827;
+            --bg-card: #1a2234;
+            --bg-card-hover: #243049;
+            --border-color: #2d3a52;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-cyan: #22d3ee;
+            --accent-emerald: #10b981;
+            --accent-rose: #f43f5e;
+            --accent-amber: #f59e0b;
+            --accent-violet: #8b5cf6;
+            --accent-blue: #3b82f6;
+            --gradient-1: linear-gradient(135deg, #22d3ee 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #22d3ee 100%);
+            --glow-cyan: 0 0 30px rgba(34, 211, 238, 0.3);
+            --glow-emerald: 0 0 30px rgba(16, 185, 129, 0.3);
+            --glow-rose: 0 0 30px rgba(244, 63, 94, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background effects */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.15;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-glow-1 {
+            top: -200px;
+            right: -200px;
+            background: var(--accent-cyan);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .bg-glow-2 {
+            bottom: -200px;
+            left: -200px;
+            background: var(--accent-violet);
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            33% { transform: translate(30px, -30px); }
+            66% { transform: translate(-20px, 20px); }
+        }
+
+        /* Header */
+        .header {
+            position: relative;
+            z-index: 10;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--glow-cyan);
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-cyan);
+        }
+
+        .refresh-btn.loading .icon {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .last-updated {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Main layout */
+        .main-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            min-height: calc(100vh - 80px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            min-width: 320px;
+            border-right: 1px solid var(--border-color);
+            background: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .search-container {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            padding-left: 2.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(34, 211, 238, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-wrapper {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        /* Service list */
+        .service-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .service-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .service-list::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .service-list::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .service-card {
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .service-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateX(4px);
+        }
+
+        .service-card.active {
+            border-color: var(--accent-cyan);
+            background: var(--bg-card-hover);
+        }
+
+        .service-card.active::before {
+            background: var(--accent-cyan);
+        }
+
+        .service-card.status-up::before {
+            background: var(--accent-emerald);
+        }
+
+        .service-card.status-down::before {
+            background: var(--accent-rose);
+        }
+
+        .service-card.status-unknown::before {
+            background: var(--accent-amber);
+        }
+
+        .service-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-name {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+            text-transform: capitalize;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.625rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-badge.up {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+        }
+
+        .status-badge.down {
+            background: rgba(244, 63, 94, 0.15);
+            color: var(--accent-rose);
+        }
+
+        .status-badge.unknown {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.up .status-dot {
+            background: var(--accent-emerald);
+        }
+
+        .status-badge.down .status-dot {
+            background: var(--accent-rose);
+        }
+
+        .status-badge.unknown .status-dot {
+            background: var(--accent-amber);
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .service-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .service-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        .grpc-ui-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 6px;
+            color: var(--accent-violet);
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .grpc-ui-btn:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: var(--accent-violet);
+            transform: translateY(-1px);
+        }
+
+        .grpc-ui-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        .grpc-ui-btn-large {
+            padding: 0.625rem 1.25rem;
+            font-size: 0.8rem;
+            border-radius: 8px;
+        }
+
+        /* Content area */
+        .content {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        /* Welcome state */
+        .welcome-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+        .welcome-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        .welcome-text {
+            color: var(--text-muted);
+            max-width: 400px;
+        }
+
+        /* Summary cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            filter: blur(50px);
+            opacity: 0.1;
+        }
+
+        .summary-card.total::after { background: var(--accent-blue); }
+        .summary-card.healthy::after { background: var(--accent-emerald); }
+        .summary-card.unhealthy::after { background: var(--accent-rose); }
+        .summary-card.unknown::after { background: var(--accent-amber); }
+
+        .summary-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .summary-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .summary-card.total .summary-value { color: var(--accent-blue); }
+        .summary-card.healthy .summary-value { color: var(--accent-emerald); }
+        .summary-card.unhealthy .summary-value { color: var(--accent-rose); }
+        .summary-card.unknown .summary-value { color: var(--accent-amber); }
+
+        /* Service detail view */
+        .service-detail {
+            display: none;
+        }
+
+        .service-detail.active {
+            display: block;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .detail-icon {
+            width: 56px;
+            height: 56px;
+            background: var(--gradient-2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .detail-name {
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-transform: capitalize;
+        }
+
+        .detail-endpoint {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Metrics grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .metric-icon.memory { background: rgba(139, 92, 246, 0.15); color: var(--accent-violet); }
+        .metric-icon.cpu { background: rgba(34, 211, 238, 0.15); color: var(--accent-cyan); }
+        .metric-icon.threads { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+        .metric-icon.http { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .metric-chart {
+            height: 120px;
+            margin-top: 1rem;
+        }
+
+        .chart-container {
+            height: 100px;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .thread-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.25rem 0.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            color: var(--accent-emerald);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .live-indicator .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-emerald);
+            border-radius: 50%;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            margin-top: 1rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-fill.memory { background: var(--gradient-1); }
+        .progress-fill.cpu { background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-blue) 100%); }
+
+        .progress-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Info table */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table th,
+        .info-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-table th {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-table td {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+
+        /* Error state */
+        .error-card {
+            background: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .error-icon {
+            font-size: 1.5rem;
+            color: var(--accent-rose);
+        }
+
+        .error-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--accent-rose);
+        }
+
+        .error-message {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Loading skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-card-hover) 50%, var(--bg-card) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                min-width: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                max-height: 300px;
+            }
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">⚡</div>
+            <div>
+                <div class="logo-text">Waroenk Gateway</div>
+                <div class="logo-subtitle">Service Monitor</div>
+            </div>
+        </div>
+        <div class="header-actions">
+            <span class="last-updated" id="lastUpdated">Last updated: --</span>
+            <button class="refresh-btn" id="refreshBtn" onclick="refreshData()">
+                <span class="icon">🔄</span>
+                <span>Refresh</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <aside class="sidebar">
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" class="search-input" id="searchInput" placeholder="Search services..." oninput="filterServices()">
+                </div>
+            </div>
+            <div class="service-list" id="serviceList">
+                <!-- Services will be populated here -->
+            </div>
+        </aside>
+
+        <main class="content" id="content">
+            <!-- Summary view (default) -->
+            <div id="summaryView">
+                <div class="summary-grid">
+                    <div class="summary-card total">
+                        <div class="summary-label">Total Services</div>
+                        <div class="summary-value" id="totalServices">-</div>
+                    </div>
+                    <div class="summary-card healthy">
+                        <div class="summary-label">Healthy</div>
+                        <div class="summary-value" id="healthyServices">-</div>
+                    </div>
+                    <div class="summary-card unhealthy">
+                        <div class="summary-label">Unhealthy</div>
+                        <div class="summary-value" id="unhealthyServices">-</div>
+                    </div>
+                    <div class="summary-card unknown">
+                        <div class="summary-label">Unknown</div>
+                        <div class="summary-value" id="unknownServices">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service detail view -->
+            <div class="service-detail" id="serviceDetail">
+                <div class="detail-header">
+                    <div class="detail-title">
+                        <div class="detail-icon">📦</div>
+                        <div>
+                            <div class="detail-name" id="detailName">-</div>
+                            <div class="detail-endpoint" id="detailEndpoint">-</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <button id="liveToggle" class="refresh-btn" onclick="toggleLiveUpdates()" title="Toggle live updates">
+                            <span class="icon" id="liveToggleIcon">⏸️</span>
+                            <span id="liveToggleText">Pause</span>
+                        </button>
+                        <a id="grpcUiLink" href="#" target="_blank" class="grpc-ui-btn grpc-ui-btn-large" onclick="event.stopPropagation()">
+                            <span>🔧</span>
+                            <span>Open gRPC UI</span>
+                        </a>
+                        <div id="detailStatus"></div>
+                    </div>
+                </div>
+
+                <div id="detailError" style="display: none; margin-bottom: 2rem;">
+                    <div class="error-card">
+                        <div class="error-icon">⚠️</div>
+                        <div>
+                            <div class="error-title">Service Unreachable</div>
+                            <div class="error-message" id="errorMessage">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="detailContent">
+                    <div class="metrics-grid">
+                        <!-- Memory card -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-title">Memory Usage</div>
+                                <div class="metric-icon memory">💾</div>
+                            </div>
+                            <div class="metric-value" id="memoryUsed">- MB</div>
+                            <div class="metric-label">Heap Memory Used</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill memory" id="memoryProgress" style="width: 0%"></div>
+                                </div>
+                                <div class="progress-labels">
+                                    <span id="memoryUsedLabel">- MB</span>
+                                    <span id="memoryMaxLabel">- MB</span>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="memoryChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- CPU card -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-title">CPU Usage</div>
+                                <div class="metric-icon cpu">⚡</div>
+                            </div>
+                            <div class="metric-value" id="cpuUsage">0%</div>
+                            <div class="metric-label">Process CPU</div>
+                            <div class="progress-container">
+                                <div class="progress-bar">
+                                    <div class="progress-fill cpu" id="cpuProgress" style="width: 0%"></div>
+                                </div>
+                                <div class="progress-labels">
+                                    <span>0%</span>
+                                    <span>100%</span>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="cpuChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Threads card -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-title">JVM Threads</div>
+                                <div class="metric-icon threads">🧵</div>
+                            </div>
+                            <div class="metric-value" id="threadCount">-</div>
+                            <div class="metric-label">Active Threads</div>
+                            <div class="thread-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Peak</span>
+                                    <span class="stat-value" id="threadPeak">-</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Daemon</span>
+                                    <span class="stat-value" id="threadDaemon">-</span>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="threadsChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- HTTP card -->
+                        <div class="metric-card">
+                            <div class="metric-header">
+                                <div class="metric-title">HTTP Requests</div>
+                                <div class="metric-icon http">🌐</div>
+                            </div>
+                            <div class="metric-value" id="httpRequests">-</div>
+                            <div class="metric-label">Total Requests</div>
+                            <div class="thread-stats">
+                                <div class="stat-item">
+                                    <span class="stat-label">Avg Response</span>
+                                    <span class="stat-value" id="avgResponse">-</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Uptime</span>
+                                    <span class="stat-value" id="uptime">-</span>
+                                </div>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="httpChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Service Info -->
+                    <div class="metric-card" style="margin-top: 1rem;">
+                        <div class="metric-header">
+                            <div class="metric-title">Service Information</div>
+                            <div class="metric-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--accent-amber);">ℹ️</div>
+                        </div>
+                        <table class="info-table" id="serviceInfoTable">
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Value</th>
+                                </tr>
+                            </thead>
+                            <tbody id="serviceInfoBody">
+                                <!-- Info rows will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Health Details -->
+                    <div class="metric-card" style="margin-top: 1rem;">
+                        <div class="metric-header">
+                            <div class="metric-title">Health Details</div>
+                            <div class="metric-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald);">🏥</div>
+                        </div>
+                        <pre id="healthDetails" style="background: var(--bg-secondary); padding: 1rem; border-radius: 8px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--text-secondary);">-</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome state -->
+            <div class="welcome-state" id="welcomeState" style="display: none;">
+                <div class="welcome-icon">📊</div>
+                <div class="welcome-title">Select a Service</div>
+                <div class="welcome-text">Choose a service from the sidebar to view detailed health information and metrics.</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // State
+        let services = [];
+        let selectedService = null;
+        let refreshInterval = null;
+        let metricsInterval = null;
+        
+        // Chart instances
+        let memoryChart = null;
+        let cpuChart = null;
+        let threadsChart = null;
+        let httpChart = null;
+        
+        // Metrics history (local buffer for smooth charts)
+        const MAX_DATA_POINTS = 30;
+        let metricsHistory = {
+            timestamps: [],
+            memory: [],
+            cpu: [],
+            threads: [],
+            httpRequests: []
+        };
+
+        // Chart.js default config
+        const chartDefaults = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 300,
+                easing: 'easeOutQuart'
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(26, 34, 52, 0.95)',
+                    titleColor: '#f1f5f9',
+                    bodyColor: '#94a3b8',
+                    borderColor: 'rgba(45, 58, 82, 0.8)',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false,
+                    titleFont: { family: 'JetBrains Mono', size: 11 },
+                    bodyFont: { family: 'JetBrains Mono', size: 10 }
+                }
+            },
+            scales: {
+                x: {
+                    display: false,
+                    grid: { display: false }
+                },
+                y: {
+                    display: true,
+                    grid: {
+                        color: 'rgba(45, 58, 82, 0.3)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        color: '#64748b',
+                        font: { family: 'JetBrains Mono', size: 9 },
+                        maxTicksLimit: 4
+                    }
+                }
+            }
+        };
+
+        // Create gradient for charts
+        function createGradient(ctx, color1, color2) {
+            const gradient = ctx.createLinearGradient(0, 0, 0, 100);
+            gradient.addColorStop(0, color1);
+            gradient.addColorStop(1, color2);
+            return gradient;
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Destroy existing charts
+            if (memoryChart) memoryChart.destroy();
+            if (cpuChart) cpuChart.destroy();
+            if (threadsChart) threadsChart.destroy();
+            if (httpChart) httpChart.destroy();
+
+            // Memory Chart
+            const memoryCtx = document.getElementById('memoryChart')?.getContext('2d');
+            if (memoryCtx) {
+                memoryChart = new Chart(memoryCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Memory (MB)',
+                            data: [],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: createGradient(memoryCtx, 'rgba(139, 92, 246, 0.3)', 'rgba(139, 92, 246, 0)'),
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            pointHoverBackgroundColor: '#8b5cf6'
+                        }]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: {
+                            ...chartDefaults.scales,
+                            y: {
+                                ...chartDefaults.scales.y,
+                                ticks: {
+                                    ...chartDefaults.scales.y.ticks,
+                                    callback: (val) => val + ' MB'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // CPU Chart
+            const cpuCtx = document.getElementById('cpuChart')?.getContext('2d');
+            if (cpuCtx) {
+                cpuChart = new Chart(cpuCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'CPU (%)',
+                            data: [],
+                            borderColor: '#22d3ee',
+                            backgroundColor: createGradient(cpuCtx, 'rgba(34, 211, 238, 0.3)', 'rgba(34, 211, 238, 0)'),
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            pointHoverBackgroundColor: '#22d3ee'
+                        }]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: {
+                            ...chartDefaults.scales,
+                            y: {
+                                ...chartDefaults.scales.y,
+                                min: 0,
+                                max: 100,
+                                ticks: {
+                                    ...chartDefaults.scales.y.ticks,
+                                    callback: (val) => val + '%'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Threads Chart
+            const threadsCtx = document.getElementById('threadsChart')?.getContext('2d');
+            if (threadsCtx) {
+                threadsChart = new Chart(threadsCtx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Threads',
+                            data: [],
+                            borderColor: '#3b82f6',
+                            backgroundColor: createGradient(threadsCtx, 'rgba(59, 130, 246, 0.3)', 'rgba(59, 130, 246, 0)'),
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            pointHoverRadius: 4,
+                            pointHoverBackgroundColor: '#3b82f6'
+                        }]
+                    },
+                    options: chartDefaults
+                });
+            }
+
+            // HTTP Chart
+            const httpCtx = document.getElementById('httpChart')?.getContext('2d');
+            if (httpCtx) {
+                httpChart = new Chart(httpCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Requests',
+                            data: [],
+                            backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                            borderColor: '#10b981',
+                            borderWidth: 1,
+                            borderRadius: 2,
+                            barPercentage: 0.8
+                        }]
+                    },
+                    options: {
+                        ...chartDefaults,
+                        scales: {
+                            ...chartDefaults.scales,
+                            y: {
+                                ...chartDefaults.scales.y,
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Reset history
+            metricsHistory = {
+                timestamps: [],
+                memory: [],
+                cpu: [],
+                threads: [],
+                httpRequests: []
+            };
+        }
+
+        // Update charts with new data
+        function updateCharts(metrics) {
+            if (!metrics.available) return;
+
+            const now = new Date().toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            
+            // Get values with snake_case/camelCase fallback
+            const heapUsed = metrics.memory?.heap_used || metrics.memory?.heapUsed || 0;
+            const cpuUsage = metrics.jvm?.cpu_usage || metrics.jvm?.cpuUsage || 0;
+            const threadCount = metrics.jvm?.thread_count || metrics.jvm?.threadCount || 0;
+            const totalRequests = metrics.http?.total_requests || metrics.http?.totalRequests || 0;
+            
+            // Add new data point
+            metricsHistory.timestamps.push(now);
+            metricsHistory.memory.push(Math.round(heapUsed / 1024 / 1024));
+            metricsHistory.cpu.push((cpuUsage * 100).toFixed(1));
+            metricsHistory.threads.push(threadCount);
+            metricsHistory.httpRequests.push(totalRequests);
+
+            // Keep only last N data points
+            if (metricsHistory.timestamps.length > MAX_DATA_POINTS) {
+                metricsHistory.timestamps.shift();
+                metricsHistory.memory.shift();
+                metricsHistory.cpu.shift();
+                metricsHistory.threads.shift();
+                metricsHistory.httpRequests.shift();
+            }
+
+            // Update Memory Chart
+            if (memoryChart) {
+                memoryChart.data.labels = metricsHistory.timestamps;
+                memoryChart.data.datasets[0].data = metricsHistory.memory;
+                memoryChart.update('none');
+            }
+
+            // Update CPU Chart
+            if (cpuChart) {
+                cpuChart.data.labels = metricsHistory.timestamps;
+                cpuChart.data.datasets[0].data = metricsHistory.cpu;
+                cpuChart.update('none');
+            }
+
+            // Update Threads Chart
+            if (threadsChart) {
+                threadsChart.data.labels = metricsHistory.timestamps;
+                threadsChart.data.datasets[0].data = metricsHistory.threads;
+                threadsChart.update('none');
+            }
+
+            // Update HTTP Chart (show request rate per interval)
+            if (httpChart) {
+                // Calculate request delta for bar chart
+                const requestDeltas = [];
+                for (let i = 0; i < metricsHistory.httpRequests.length; i++) {
+                    if (i === 0) {
+                        requestDeltas.push(0);
+                    } else {
+                        const delta = metricsHistory.httpRequests[i] - metricsHistory.httpRequests[i-1];
+                        requestDeltas.push(delta >= 0 ? delta : 0);
+                    }
+                }
+                httpChart.data.labels = metricsHistory.timestamps;
+                httpChart.data.datasets[0].data = requestDeltas;
+                httpChart.update('none');
+            }
+        }
+
+        // Fetch metrics for live updates (every 5 seconds)
+        async function fetchLiveMetrics() {
+            if (!selectedService) return;
+            
+            try {
+                const response = await fetch(`/monitoring/services/${selectedService}/metrics`);
+                const metrics = await response.json();
+                
+                if (metrics.available) {
+                    updateMetricsUI(metrics);
+                    updateCharts(metrics);
+                }
+            } catch (error) {
+                console.warn('Failed to fetch live metrics:', error);
+            }
+        }
+
+        // Start live metrics polling
+        function startLiveMetrics() {
+            // Don't start if paused
+            if (liveUpdatesPaused) return;
+            
+            // Clear existing interval
+            if (metricsInterval) {
+                clearInterval(metricsInterval);
+            }
+            
+            // Fetch immediately, then every 5 seconds
+            fetchLiveMetrics();
+            metricsInterval = setInterval(fetchLiveMetrics, 5000);
+            updateLiveToggleUI(true);
+        }
+
+        // Stop live metrics polling
+        function stopLiveMetrics() {
+            if (metricsInterval) {
+                clearInterval(metricsInterval);
+                metricsInterval = null;
+            }
+            updateLiveToggleUI(false);
+        }
+
+        // Live updates paused state
+        let liveUpdatesPaused = false;
+
+        // Toggle live updates
+        function toggleLiveUpdates() {
+            if (liveUpdatesPaused) {
+                // Resume
+                liveUpdatesPaused = false;
+                if (selectedService) {
+                    startLiveMetrics();
+                }
+            } else {
+                // Pause
+                liveUpdatesPaused = true;
+                if (metricsInterval) {
+                    clearInterval(metricsInterval);
+                    metricsInterval = null;
+                }
+            }
+            updateLiveToggleUI(!liveUpdatesPaused);
+        }
+
+        // Update toggle button UI
+        function updateLiveToggleUI(isLive) {
+            const icon = document.getElementById('liveToggleIcon');
+            const text = document.getElementById('liveToggleText');
+            if (icon && text) {
+                if (isLive) {
+                    icon.textContent = '⏸️';
+                    text.textContent = 'Pause';
+                } else {
+                    icon.textContent = '▶️';
+                    text.textContent = 'Resume';
+                }
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            refreshData();
+            // Auto-refresh service list every 30 seconds
+            refreshInterval = setInterval(refreshData, 30000);
+        });
+
+        // Fetch dashboard summary
+        async function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.classList.add('loading');
+
+            try {
+                const response = await fetch('/monitoring/summary');
+                const data = await response.json();
+
+                // Update summary (API returns snake_case)
+                document.getElementById('totalServices').textContent = data.total_services;
+                document.getElementById('healthyServices').textContent = data.healthy_services;
+                document.getElementById('unhealthyServices').textContent = data.unhealthy_services;
+                document.getElementById('unknownServices').textContent = data.unknown_services;
+
+                // Store services
+                services = data.services;
+
+                // Render service list
+                renderServiceList();
+
+                // Update last updated time
+                document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+
+                // If a service is selected, refresh its details
+                if (selectedService) {
+                    showServiceDetail(selectedService);
+                }
+            } catch (error) {
+                console.error('Failed to fetch data:', error);
+            } finally {
+                btn.classList.remove('loading');
+            }
+        }
+
+        // Render service list
+        function renderServiceList() {
+            const container = document.getElementById('serviceList');
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = services.filter(s => 
+                s.service_name.toLowerCase().includes(searchTerm) ||
+                s.host.toLowerCase().includes(searchTerm)
+            );
+
+            container.innerHTML = filtered.map(service => {
+                const statusClass = service.status.toLowerCase();
+                const isActive = selectedService === service.service_name;
+                const grpcUiUrl = getGrpcUiUrl(service);
+                const hasGrpcUi = grpcUiUrl !== null;
+
+                return `
+                    <div class="service-card status-${statusClass} ${isActive ? 'active' : ''}" 
+                         onclick="selectService('${service.service_name}')">
+                        <div class="service-card-header">
+                            <div class="service-name">${service.service_name}</div>
+                            <div class="status-badge ${statusClass}">
+                                <div class="status-dot"></div>
+                                ${service.status}
+                            </div>
+                        </div>
+                        <div class="service-meta">
+                            ${service.host}:${service.grpc_port} (gRPC) | ${service.http_port > 0 ? service.http_port + ' (HTTP)' : 'No HTTP'}
+                        </div>
+                        <div class="service-actions">
+                            <a href="${hasGrpcUi ? grpcUiUrl : '#'}" 
+                               target="_blank" 
+                               class="grpc-ui-btn ${!hasGrpcUi ? 'disabled' : ''}"
+                               onclick="event.stopPropagation()${!hasGrpcUi ? '; return false;' : ''}"
+                               title="${hasGrpcUi ? 'Open gRPC UI' : 'HTTP port not configured'}">
+                                <span>🔧</span>
+                                <span>gRPC UI</span>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Filter services
+        function filterServices() {
+            renderServiceList();
+        }
+
+        // Select service
+        function selectService(serviceName) {
+            selectedService = serviceName;
+            renderServiceList();
+            showServiceDetail(serviceName);
+        }
+
+        // Show service detail
+        async function showServiceDetail(serviceName) {
+            const service = services.find(s => s.service_name === serviceName);
+            if (!service) return;
+
+            // Stop any existing live metrics polling
+            stopLiveMetrics();
+
+            // Show detail view, hide welcome
+            document.getElementById('summaryView').style.display = 'none';
+            document.getElementById('welcomeState').style.display = 'none';
+            document.getElementById('serviceDetail').classList.add('active');
+
+            // Update header with live indicator
+            document.getElementById('detailName').textContent = serviceName;
+            document.getElementById('detailEndpoint').innerHTML = `
+                ${service.host}:${service.grpc_port} (gRPC) | ${service.http_port > 0 ? service.http_port + ' (HTTP)' : 'No HTTP port'}
+                ${service.status === 'UP' ? '<span class="live-indicator"><span class="dot"></span>LIVE</span>' : ''}
+            `;
+
+            const statusClass = service.status.toLowerCase();
+            document.getElementById('detailStatus').innerHTML = `
+                <div class="status-badge ${statusClass}">
+                    <div class="status-dot"></div>
+                    ${service.status}
+                </div>
+            `;
+
+            // Update gRPC UI link
+            const grpcUiLink = document.getElementById('grpcUiLink');
+            const grpcUiUrl = getGrpcUiUrl(service);
+            if (grpcUiUrl) {
+                grpcUiLink.href = grpcUiUrl;
+                grpcUiLink.classList.remove('disabled');
+                grpcUiLink.title = 'Open gRPC UI for ' + serviceName;
+            } else {
+                grpcUiLink.href = '#';
+                grpcUiLink.classList.add('disabled');
+                grpcUiLink.title = 'HTTP port not configured - gRPC UI unavailable';
+                grpcUiLink.onclick = (e) => { e.preventDefault(); e.stopPropagation(); };
+            }
+
+            // Handle unreachable service
+            if (service.status === 'DOWN' || service.status === 'UNKNOWN') {
+                document.getElementById('detailError').style.display = 'block';
+                document.getElementById('errorMessage').textContent = service.error_message || 'Unable to connect to service actuator endpoint';
+                
+                if (service.http_port <= 0) {
+                    document.getElementById('errorMessage').textContent = 'HTTP port not configured for this service. Cannot fetch actuator metrics.';
+                }
+            } else {
+                document.getElementById('detailError').style.display = 'none';
+            }
+
+            // Initialize charts for this service
+            initCharts();
+
+            // Fetch initial metrics and history
+            try {
+                const [metricsRes, infoRes, historyRes] = await Promise.all([
+                    fetch(`/monitoring/services/${serviceName}/metrics`),
+                    fetch(`/monitoring/services/${serviceName}/info`),
+                    fetch(`/monitoring/services/${serviceName}/metrics/history`)
+                ]);
+
+                const metrics = await metricsRes.json();
+                const info = await infoRes.json();
+                const history = await historyRes.json();
+
+                if (metrics.available) {
+                    updateMetricsUI(metrics);
+                    
+                    // Load history into charts if available
+                    if (history && history.length > 0) {
+                        loadMetricsHistory(history);
+                    } else {
+                        // Add current metrics as first data point
+                        updateCharts(metrics);
+                    }
+                } else {
+                    resetMetricsUI();
+                }
+
+                updateInfoUI(info, service);
+                updateHealthDetails(service);
+
+                // Start live metrics polling if service is UP
+                if (service.status === 'UP') {
+                    startLiveMetrics();
+                }
+
+            } catch (error) {
+                console.error('Failed to fetch service details:', error);
+                resetMetricsUI();
+            }
+        }
+
+        // Load historical metrics into charts
+        function loadMetricsHistory(history) {
+            // Clear current history
+            metricsHistory = {
+                timestamps: [],
+                memory: [],
+                cpu: [],
+                threads: [],
+                httpRequests: []
+            };
+
+            // Process each historical snapshot (with snake_case/camelCase fallback)
+            history.slice(-MAX_DATA_POINTS).forEach(snapshot => {
+                const time = snapshot.timestamp ? 
+                    new Date(snapshot.timestamp).toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }) :
+                    '';
+                
+                const heapUsed = snapshot.memory?.heap_used || snapshot.memory?.heapUsed || 0;
+                const cpuUsage = snapshot.jvm?.cpu_usage || snapshot.jvm?.cpuUsage || 0;
+                const threadCount = snapshot.jvm?.thread_count || snapshot.jvm?.threadCount || 0;
+                const totalRequests = snapshot.http?.total_requests || snapshot.http?.totalRequests || 0;
+                
+                metricsHistory.timestamps.push(time);
+                metricsHistory.memory.push(Math.round(heapUsed / 1024 / 1024));
+                metricsHistory.cpu.push((cpuUsage * 100).toFixed(1));
+                metricsHistory.threads.push(threadCount);
+                metricsHistory.httpRequests.push(totalRequests);
+            });
+
+            // Update all charts at once
+            if (memoryChart) {
+                memoryChart.data.labels = metricsHistory.timestamps;
+                memoryChart.data.datasets[0].data = metricsHistory.memory;
+                memoryChart.update();
+            }
+
+            if (cpuChart) {
+                cpuChart.data.labels = metricsHistory.timestamps;
+                cpuChart.data.datasets[0].data = metricsHistory.cpu;
+                cpuChart.update();
+            }
+
+            if (threadsChart) {
+                threadsChart.data.labels = metricsHistory.timestamps;
+                threadsChart.data.datasets[0].data = metricsHistory.threads;
+                threadsChart.update();
+            }
+
+            if (httpChart) {
+                // Calculate request deltas
+                const requestDeltas = [];
+                for (let i = 0; i < metricsHistory.httpRequests.length; i++) {
+                    if (i === 0) {
+                        requestDeltas.push(0);
+                    } else {
+                        const delta = metricsHistory.httpRequests[i] - metricsHistory.httpRequests[i-1];
+                        requestDeltas.push(delta >= 0 ? delta : 0);
+                    }
+                }
+                httpChart.data.labels = metricsHistory.timestamps;
+                httpChart.data.datasets[0].data = requestDeltas;
+                httpChart.update();
+            }
+        }
+
+        // Update metrics UI
+        function updateMetricsUI(metrics) {
+            const memory = metrics.memory || {};
+            const jvm = metrics.jvm || {};
+            const http = metrics.http || {};
+
+            // Memory (API returns snake_case: heap_used, heap_max, heap_used_percentage)
+            const heapUsed = memory.heap_used || memory.heapUsed;
+            const heapMax = memory.heap_max || memory.heapMax;
+            const heapPercent = memory.heap_used_percentage || memory.heapUsedPercentage;
+            
+            const heapUsedMB = heapUsed ? (heapUsed / 1024 / 1024).toFixed(0) : '-';
+            const heapMaxMB = heapMax ? (heapMax / 1024 / 1024).toFixed(0) : '-';
+            const heapPercentVal = heapPercent ? heapPercent.toFixed(1) : 0;
+
+            document.getElementById('memoryUsed').textContent = heapUsedMB + ' MB';
+            document.getElementById('memoryProgress').style.width = heapPercentVal + '%';
+            document.getElementById('memoryUsedLabel').textContent = heapUsedMB + ' MB';
+            document.getElementById('memoryMaxLabel').textContent = heapMaxMB + ' MB';
+
+            // CPU (API returns snake_case: cpu_usage)
+            const cpuUsage = jvm.cpu_usage || jvm.cpuUsage;
+            const cpuPercent = cpuUsage ? (cpuUsage * 100).toFixed(1) : 0;
+            document.getElementById('cpuUsage').textContent = cpuPercent + '%';
+            document.getElementById('cpuProgress').style.width = Math.min(cpuPercent, 100) + '%';
+
+            // Threads (API returns snake_case: thread_count, thread_peak_count, thread_daemon_count)
+            const threadCount = jvm.thread_count || jvm.threadCount;
+            const threadPeak = jvm.thread_peak_count || jvm.threadPeakCount;
+            const threadDaemon = jvm.thread_daemon_count || jvm.threadDaemonCount;
+            
+            document.getElementById('threadCount').textContent = threadCount || '-';
+            document.getElementById('threadPeak').textContent = threadPeak || '-';
+            document.getElementById('threadDaemon').textContent = threadDaemon || '-';
+
+            // HTTP (API returns snake_case: total_requests, avg_response_time)
+            const totalRequests = http.total_requests || http.totalRequests;
+            const avgResponseTime = http.avg_response_time || http.avgResponseTime;
+            
+            document.getElementById('httpRequests').textContent = totalRequests ? formatNumber(totalRequests) : '-';
+            document.getElementById('avgResponse').textContent = avgResponseTime ? (avgResponseTime * 1000).toFixed(2) + ' ms' : '-';
+
+            // Uptime (API returns snake_case: uptime_seconds)
+            const uptimeSec = jvm.uptime_seconds || jvm.uptimeSeconds || 0;
+            document.getElementById('uptime').textContent = formatUptime(uptimeSec);
+        }
+
+        // Reset metrics UI
+        function resetMetricsUI() {
+            document.getElementById('memoryUsed').textContent = '-';
+            document.getElementById('memoryProgress').style.width = '0%';
+            document.getElementById('memoryUsedLabel').textContent = '-';
+            document.getElementById('memoryMaxLabel').textContent = '-';
+            document.getElementById('cpuUsage').textContent = '-';
+            document.getElementById('cpuProgress').style.width = '0%';
+            document.getElementById('threadCount').textContent = '-';
+            document.getElementById('threadPeak').textContent = '-';
+            document.getElementById('threadDaemon').textContent = '-';
+            document.getElementById('httpRequests').textContent = '-';
+            document.getElementById('avgResponse').textContent = '-';
+            document.getElementById('uptime').textContent = '-';
+        }
+
+        // Update info UI
+        function updateInfoUI(info, service) {
+            const tbody = document.getElementById('serviceInfoBody');
+            const grpcUiUrl = getGrpcUiUrl(service);
+            
+            const rows = [
+                ['Service Name', info.app_name || service.service_name],
+                ['Version', info.version || 'N/A'],
+                ['Source', service.source],
+                ['Host', service.host],
+                ['gRPC Port', service.grpc_port],
+                ['HTTP Port', service.http_port > 0 ? service.http_port : 'Not configured'],
+                ['gRPC UI', grpcUiUrl ? `<a href="${grpcUiUrl}" target="_blank" class="grpc-ui-btn" style="display: inline-flex;"><span>🔧</span><span>${grpcUiUrl}</span></a>` : '<span style="color: var(--text-muted)">Not available</span>'],
+                ['Java Version', info.java_version || 'N/A'],
+                ['Last Check', service.last_check || 'N/A']
+            ];
+
+            tbody.innerHTML = rows.map(([prop, value]) => `
+                <tr>
+                    <td style="color: var(--text-muted)">${prop}</td>
+                    <td>${value}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Update health details
+        function updateHealthDetails(service) {
+            const pre = document.getElementById('healthDetails');
+            if (service.health_details) {
+                pre.textContent = JSON.stringify(service.health_details, null, 2);
+            } else {
+                pre.textContent = service.error_message || 'No health details available';
+            }
+        }
+
+        // Format number
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Format uptime
+        function formatUptime(seconds) {
+            if (!seconds) return '-';
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+
+            if (days > 0) return `${days}d ${hours}h ${minutes}m`;
+            if (hours > 0) return `${hours}h ${minutes}m`;
+            return `${minutes}m`;
+        }
+
+        // Show summary view
+        function showSummaryView() {
+            // Stop live metrics polling
+            stopLiveMetrics();
+            
+            selectedService = null;
+            document.getElementById('summaryView').style.display = 'block';
+            document.getElementById('serviceDetail').classList.remove('active');
+            document.getElementById('welcomeState').style.display = 'none';
+            renderServiceList();
+        }
+
+        // Get gRPC UI URL for a service
+        // Maps Docker internal hostnames to localhost for browser access
+        function getGrpcUiUrl(service) {
+            if (!service.http_port || service.http_port <= 0) {
+                return null;
+            }
+            // Docker hostnames are only accessible within the Docker network
+            // Map them to localhost for browser access
+            const dockerHosts = ['member', 'catalog', 'cart', 'api-gateway'];
+            const host = dockerHosts.includes(service.host) ? 'localhost' : service.host;
+            
+            // gRPC UI is available at /grpc-ui on the HTTP port
+            return `http://${host}:${service.http_port}/grpc-ui`;
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package member.system_parameter;
+
+import "common/base.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.member";
+option java_outer_classname = "SystemParameterMessagesProto";
+
+message SystemParameterData {
+    string id = 1;
+    string variable = 2;
+    string data = 3;
+    string description = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
+}
+
+message UpsertSystemParameterRequest {
+    string variable = 1;
+    string data = 2;
+    optional string description = 3;
+}
+
+message OneSystemParameterRequest {
+    string variable = 1;
+}
+
+message MultipleSystemParameterRequest {
+    optional string variable = 1;
+    int32 size = 2;
+    optional string cursor = 3;
+    optional common.SortBy sort_by = 4;
+}
+
+message MultipleSystemParameterResponse {
+    repeated SystemParameterData data = 1;
+    string next_token = 2;
+    int32 total = 3;
+}

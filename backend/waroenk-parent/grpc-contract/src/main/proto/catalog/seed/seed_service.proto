@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package catalog.seed;
+
+import "common/base.proto";
+import "google/api/annotations.proto";
+import "catalog/seed/seed_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.catalog";
+option java_outer_classname = "SeedServiceProto";
+
+// Service for TypeSense indexing operations
+// Note: Data seeding is done via external Python script (data/seed_mongodb.py)
+service SeedService {
+    // Index all merchants in TypeSense
+    rpc IndexMerchantsInTypeSense(common.Empty) returns (seed.SeedResponse) {
+        option (google.api.http) = {
+            post: "/api/index/merchants"
+        };
+    }
+
+    // Index all products in TypeSense
+    rpc IndexProductsInTypeSense(common.Empty) returns (seed.SeedResponse) {
+        option (google.api.http) = {
+            post: "/api/index/products"
+        };
+    }
+
+    // Index both merchants and products in TypeSense
+    rpc IndexAllInTypeSense(common.Empty) returns (seed.SeedResponse) {
+        option (google.api.http) = {
+            post: "/api/index/all"
+        };
+    }
+
+    // Index products by bulk SKUs (for incremental/selective indexing)
+    rpc IndexProductsBySkus(seed.IndexBySkusRequest) returns (seed.BulkIndexResponse) {
+        option (google.api.http) = {
+            post: "/api/index/products/bulk"
+            body: "*"
+        };
+    }
+}

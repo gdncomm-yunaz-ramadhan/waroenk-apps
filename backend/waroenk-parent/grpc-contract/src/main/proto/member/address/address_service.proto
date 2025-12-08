@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package member.address;
+
+import "google/api/annotations.proto";
+import "common/base.proto";
+import "member/address/address_messages.proto";
+
+option java_multiple_files = true;
+option java_package = "com.gdn.project.waroenk.member";
+option java_outer_classname = "AddressServiceProto";
+
+service AddressService {
+    rpc UpsertAddress(UpsertAddressRequest) returns (AddressData){
+        option (google.api.http) = {
+            post: "/api/address"
+        };
+    }
+    rpc DeleteAddressById(common.Id) returns (common.Basic){
+        option (google.api.http) = {
+            delete: "/api/address"
+        };
+    }
+    rpc SetUserDefaultAddress(SetDefaultAddressRequest) returns (common.Basic){
+        option (google.api.http) = {
+            put: "/api/address/default"
+        };
+    }
+    rpc FindAddressById(common.Id) returns (AddressData){
+        option (google.api.http) = {
+            get: "/api/address"
+        };
+    }
+    rpc FindOneUserAddressByLabel(FindUserAddressRequest) returns (AddressData){
+        option (google.api.http) = {
+            get: "/api/address/find-one"
+        };
+    }
+    rpc FilterUserAddress(FilterAddressRequest) returns (MultipleAddressResponse){
+        option (google.api.http) = {
+            get: "/api/address/filter"
+        };
+    }
+}
